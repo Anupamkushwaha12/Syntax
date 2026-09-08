@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Food - FoodBridge</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        },
+                        warm: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        soft: {
+                            purple: '#8b5cf6',
+                            blue: '#3b82f6',
+                            rose: '#f43f5e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 50%, #0a0f0a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0f;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        /* Background Effects */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+        }
+
+        .bg-orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+            top: -100px;
+            right: -100px;
+            animation: float 25s ease-in-out infinite;
+        }
+
+        .bg-orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            bottom: -100px;
+            left: -100px;
+            animation: float 30s ease-in-out infinite reverse;
+        }
+
+        .bg-orb-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(20px, -20px) scale(1.03); }
+            66% { transform: translate(-15px, 15px) scale(0.97); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 28px;
+        }
+
+        .glass-card-soft {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+        }
+
+        .glass-input {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .glass-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .glass-input::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-text-warm {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Selection Cards */
+        .selection-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .selection-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .selection-card.selected {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.15);
+        }
+
+        .selection-card.selected .card-icon {
+            transform: scale(1.1);
+        }
+
+        .selection-card .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 28px;
+            transition: transform 0.3s ease;
+        }
+
+        /* Food Type Toggle */
+        .food-toggle {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 5px;
+            gap: 4px;
+        }
+
+        .food-toggle-btn {
+            flex: 1;
+            padding: 16px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.5);
+            border: none;
+            background: transparent;
+        }
+
+        .food-toggle-btn.active-veg {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .food-toggle-btn.active-nonveg {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .food-toggle-btn:not(.active-veg):not(.active-nonveg):hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Urgency Cards */
+        .urgency-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .urgency-card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .urgency-card.selected {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .urgency-card.urgent.selected {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .urgency-card.urgent::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .urgency-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .urgency-card.selected .urgency-indicator {
+            border-color: #10b981;
+            background: #10b981;
+        }
+
+        .urgency-card.urgent.selected .urgency-indicator {
+            border-color: #f59e0b;
+            background: #f59e0b;
+        }
+
+        .urgency-indicator::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .urgency-card.selected .urgency-indicator::after {
+            opacity: 1;
+        }
+
+        /* Number Input */
+        .number-input-group {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .number-btn {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .number-btn:hover {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .number-btn:active {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .number-input {
+            flex: 1;
+            text-align: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            font-weight: 600;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 10px;
+        }
+
+        .number-input:focus {
+            outline: none;
+        }
+
+        /* Primary Button */
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.25);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Secondary Button */
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Map Container */
+        .map-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .map-grid {
+            background: 
+                linear-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
+            background-size: 25px 25px;
+        }
+
+        .location-marker {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            animation: markerBounce 1s ease infinite;
+        }
+
+        @keyframes markerBounce {
+            0%, 100% { transform: translate(-50%, -100%); }
+            50% { transform: translate(-50%, -110%); }
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Progress Tracker */
+        .progress-tracker {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            padding: 0 10px;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 24px;
+            left: 50px;
+            right: 50px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            z-index: 0;
+        }
+
+        .progress-line-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            border-radius: 2px;
+            transition: width 0.8s ease;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 1;
+            position: relative;
+        }
+
+        .step-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease;
+        }
+
+        .step-circle i {
+            width: 20px;
+            height: 20px;
+            color: rgba(255, 255, 255, 0.3);
+            transition: color 0.5s ease;
+        }
+
+        .progress-step.completed .step-circle {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-color: #10b981;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .progress-step.completed .step-circle i {
+            color: white;
+        }
+
+        .progress-step.active .step-circle {
+            border-color: #10b981;
+            box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.15);
+            animation: stepPulse 2s ease infinite;
+        }
+
+        .progress-step.active .step-circle i {
+            color: #10b981;
+        }
+
+        @keyframes stepPulse {
+            0%, 100% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.15); }
+            50% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+        }
+
+        .step-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.4);
+            text-align: center;
+            max-width: 70px;
+            transition: color 0.5s ease;
+        }
+
+        .progress-step.completed .step-label,
+        .progress-step.active .step-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Circular Countdown Timer */
+        .countdown-timer {
+            width: 160px;
+            height: 160px;
+            position: relative;
+        }
+
+        .countdown-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .countdown-track {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.08);
+            stroke-width: 8;
+        }
+
+        .countdown-progress {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .countdown-progress.safe {
+            stroke: url(#gradientSafe);
+        }
+
+        .countdown-progress.warning {
+            stroke: url(#gradientWarning);
+        }
+
+        .countdown-progress.danger {
+            stroke: url(#gradientDanger);
+        }
+
+        .countdown-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .countdown-time {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .countdown-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 2px;
+        }
+
+        /* Food Info Card */
+        .food-info-card {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .food-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* WhatsApp Preview */
+        .whatsapp-preview {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .wa-header {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wa-message {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 8px;
+            border-top-left-radius: 4px;
+            animation: messageSlideIn 0.4s ease;
+        }
+
+        @keyframes messageSlideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Confirmation Screen */
+        .confirmation-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 10, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .confirmation-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .confirmation-content {
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.5s ease 0.2s;
+        }
+
+        .confirmation-overlay.show .confirmation-content {
+            transform: scale(1);
+        }
+
+        .heart-animation {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px;
+            animation: heartBeat 1s ease infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.05); }
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-badge.fresh {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        .status-badge.near-expiry {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+        }
+
+        /* View Transitions */
+        .view {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .view.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            position: absolute;
+        }
+
+        .view.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Fade In Animation */
+        .fade-in {
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .progress-tracker {
+                flex-wrap: wrap;
+                gap: 15px;
+                justify-content: center;
+            }
+
+            .progress-line {
+                display: none;
+            }
+
+            .progress-step {
+                width: calc(33.33% - 10px);
+            }
+
+            .step-circle {
+                width: 40px;
+                height: 40px;
+            }
+
+            .step-circle i {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .progress-step {
+                width: calc(50% - 10px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-effects">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-4 lg:px-8 py-4 bg-[rgba(5,5,8,0.85)] backdrop-blur-xl border-b border-white/[0.06]">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                    <i data-lucide="heart-handshake" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="font-display text-xl font-bold">FoodBridge</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-8">
+                <a href="index.html" class="text-white/50 hover:text-primary-400 transition-colors text-sm font-medium">Home</a>
+                <a href="donate.html" class="text-white/50 hover:text-primary-400 transition-colors text-sm font-medium">Donate</a>
+                <a href="#" class="text-white/50 hover:text-primary-400 transition-colors text-sm font-medium">Track</a>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="#" class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.06] text-sm text-white/50 hover:border-white/[0.1] transition-all">
+                    <i data-lucide="phone" class="w-4 h-4 text-primary-400"></i>
+                    <span>Helpline</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 pt-28 pb-16 px-4 lg:px-8 min-h-screen">
+        <div class="max-w-4xl mx-auto">
+
+            <!-- ========================================
+                 VIEW 1: REQUEST FORM
+                 ======================================== -->
+            <div id="formView" class="view visible">
+                <!-- Page Header -->
+                <div class="text-center mb-10 fade-in">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.06] mb-5">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-primary-400"></i>
+                        <span class="text-sm text-white/50">Safe, Dignified & Confidential</span>
+                    </div>
+                    <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">
+                        <span class="gradient-text">Request Food</span>
+                    </h1>
+                    <p class="text-lg text-white/50 max-w-lg mx-auto">
+                        Get the food you need, when you need it. We're here to help.
+                    </p>
+                </div>
+
+                <!-- Request Form -->
+                <form id="requestForm" class="glass-card p-6 md:p-8">
+                    <!-- Request ID -->
+                    <div class="flex items-center justify-between mb-8 pb-6 border-b border-white/[0.06]">
+                        <div>
+                            <p class="text-sm text-white/35 mb-1">Request ID</p>
+                            <p class="font-display text-lg font-semibold text-primary-400" id="requestId">REQ-XXXXX</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></div>
+                            <span class="text-sm text-white/40">Secure Request</span>
+                        </div>
+                    </div>
+
+                    <!-- Family Size Section -->
+                    <div class="mb-8">
+                        <label class="flex items-center gap-2 text-sm font-medium text-white/70 mb-4">
+                            <i data-lucide="users" class="w-4 h-4 text-primary-400"></i>
+                            How many people need food?
+                        </label>
+                        
+                        <div class="number-input-group max-w-xs">
+                            <button type="button" class="number-btn" onclick="adjustPeople(-1)">
+                                <i data-lucide="minus" class="w-5 h-5"></i>
+                            </button>
+                            <input type="number" id="peopleCount" class="number-input" value="2" min="1" max="50" onchange="updatePeoplePreview()">
+                            <button type="button" class="number-btn" onclick="adjustPeople(1)">
+                                <i data-lucide="plus" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+
+                        <div class="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary-500/10 border border-primary-500/20">
+                            <span class="text-2xl">🍽️</span>
+                            <span class="text-primary-300 font-medium" id="peoplePreview">Food required for 2 people</span>
+                        </div>
+                    </div>
+
+                    <!-- Food Preference Section -->
+                    <div class="mb-8">
+                        <label class="flex items-center gap-2 text-sm font-medium text-white/70 mb-4">
+                            <i data-lucide="utensils" class="w-4 h-4 text-primary-400"></i>
+                            Food Preference
+                        </label>
+
+                        <!-- Veg / Non-Veg Toggle -->
+                        <div class="food-toggle mb-6">
+                            <button type="button" class="food-toggle-btn active-veg" data-value="veg" onclick="selectFoodPref(this)">
+                                <span class="text-xl">🥬</span>
+                                Vegetarian
+                            </button>
+                            <button type="button" class="food-toggle-btn" data-value="nonveg" onclick="selectFoodPref(this)">
+                                <span class="text-xl">🍖</span>
+                                Non-Veg
+                            </button>
+                            <button type="button" class="food-toggle-btn" data-value="any" onclick="selectFoodPref(this)">
+                                <span class="text-xl">🍽️</span>
+                                Any
+                            </button>
+                        </div>
+                        <input type="hidden" id="foodPreference" value="veg">
+
+                        <!-- Food Type Cards -->
+                        <p class="text-sm text-white/40 mb-3">Preferred Food Type (Optional)</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="selection-card" onclick="toggleFoodType(this)" data-type="rice">
+                                <div class="card-icon bg-amber-500/15">🍚</div>
+                                <span class="text-sm font-medium text-white/70">Rice</span>
+                            </div>
+                            <div class="selection-card" onclick="toggleFoodType(this)" data-type="roti">
+                                <div class="card-icon bg-orange-500/15">🫓</div>
+                                <span class="text-sm font-medium text-white/70">Roti</span>
+                            </div>
+                            <div class="selection-card" onclick="toggleFoodType(this)" data-type="curry">
+                                <div class="card-icon bg-red-500/15">🍛</div>
+                                <span class="text-sm font-medium text-white/70">Curry</span>
+                            </div>
+                            <div class="selection-card selected" onclick="toggleFoodType(this)" data-type="any">
+                                <div class="card-icon bg-primary-500/15">🍽️</div>
+                                <span class="text-sm font-medium text-white/70">Any Food</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Urgency Level Section -->
+                    <div class="mb-8">
+                        <label class="flex items-center gap-2 text-sm font-medium text-white/70 mb-4">
+                            <i data-lucide="clock" class="w-4 h-4 text-primary-400"></i>
+                            When do you need the food?
+                        </label>
+
+                        <div class="grid sm:grid-cols-3 gap-4">
+                            <!-- Immediate -->
+                            <div class="urgency-card urgent selected" onclick="selectUrgency(this, 'immediate')">
+                                <div class="flex items-start gap-3">
+                                    <div class="urgency-indicator"></div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xl">⚡</span>
+                                            <span class="font-semibold text-white">Immediate</span>
+                                        </div>
+                                        <p class="text-xs text-white/40">Within 1-2 hours</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Today -->
+                            <div class="urgency-card" onclick="selectUrgency(this, 'today')">
+                                <div class="flex items-start gap-3">
+                                    <div class="urgency-indicator"></div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xl">☀️</span>
+                                            <span class="font-semibold text-white">Today</span>
+                                        </div>
+                                        <p class="text-xs text-white/40">Anytime today</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Flexible -->
+                            <div class="urgency-card" onclick="selectUrgency(this, 'flexible')">
+                                <div class="flex items-start gap-3">
+                                    <div class="urgency-indicator"></div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xl">📅</span>
+                                            <span class="font-semibold text-white">Flexible</span>
+                                        </div>
+                                        <p class="text-xs text-white/40">Within 2-3 days</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="urgencyLevel" value="immediate">
+                    </div>
+
+                    <!-- Location Section -->
+                    <div class="mb-8">
+                        <label class="flex items-center gap-2 text-sm font-medium text-white/70 mb-4">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-primary-400"></i>
+                            Delivery Location
+                        </label>
+
+                        <!-- Location Input -->
+                        <div class="relative mb-4">
+                            <input 
+                                type="text" 
+                                id="locationInput"
+                                class="glass-input w-full px-5 py-4 pr-36 text-base"
+                                placeholder="Enter your address"
+                                required
+                            >
+                            <button 
+                                type="button" 
+                                id="detectBtn"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500/15 text-primary-400 text-sm font-medium hover:bg-primary-500/25 transition-all"
+                                onclick="detectLocation()"
+                            >
+                                <i data-lucide="locate" class="w-4 h-4"></i>
+                                <span class="hidden sm:inline">Auto Detect</span>
+                            </button>
+                        </div>
+
+                        <!-- Map Preview -->
+                        <div class="map-container h-44 map-grid relative">
+                            <div class="absolute inset-0 flex items-center justify-center" id="mapPlaceholder">
+                                <div class="text-center">
+                                    <i data-lucide="map" class="w-10 h-10 text-white/15 mx-auto mb-2"></i>
+                                    <p class="text-sm text-white/30">Location preview</p>
+                                </div>
+                            </div>
+                            <div class="location-marker hidden" id="locationMarker">
+                                <div class="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center shadow-lg shadow-primary-500/40">
+                                    <i data-lucide="map-pin" class="w-6 h-6 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Notes -->
+                    <div class="mb-8">
+                        <label class="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
+                            <i data-lucide="message-square" class="w-4 h-4 text-primary-400"></i>
+                            Additional Notes (Optional)
+                        </label>
+                        <textarea 
+                            id="additionalNotes"
+                            class="glass-input w-full px-5 py-4 text-base resize-none"
+                            rows="3"
+                            placeholder="Any dietary restrictions, allergies, or special requirements..."
+                        ></textarea>
+                    </div>
+
+                    <!-- Info Cards -->
+                    <div class="space-y-3 mb-8">
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary-500/8 border border-primary-500/15">
+                            <i data-lucide="shield-check" class="w-5 h-5 text-primary-400 flex-shrink-0"></i>
+                            <span class="text-sm text-primary-300">Your privacy is protected. We only share location with assigned volunteers.</span>
+                        </div>
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/8 border border-amber-500/15">
+                            <i data-lucide="zap" class="w-5 h-5 text-amber-400 flex-shrink-0"></i>
+                            <span class="text-sm text-amber-300">You'll receive WhatsApp updates about your food delivery.</span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit" 
+                        id="submitBtn"
+                        class="btn-primary w-full py-4 rounded-2xl text-white font-semibold text-lg flex items-center justify-center gap-3"
+                    >
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                        <span>Request Food</span>
+                    </button>
+
+                    <p class="text-center text-sm text-white/30 mt-4">
+                        🙏 No judgment. Just help when you need it.
+                    </p>
+                </form>
+            </div>
+
+            <!-- ========================================
+                 VIEW 2: TRACKING STATUS
+                 ======================================== -->
+            <div id="trackingView" class="view hidden">
+                <!-- Header -->
+                <div class="text-center mb-8 fade-in">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-500/10 border border-primary-500/20 mb-5">
+                        <div class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></div>
+                        <span class="text-sm text-primary-400">Live Tracking</span>
+                    </div>
+                    <h2 class="font-display text-3xl md:text-4xl font-bold mb-3">
+                        Your Food is on the Way! 🎉
+                    </h2>
+                    <p class="text-white/50">Request ID: <span class="text-primary-400" id="trackingRequestId">REQ-XXXXX</span></p>
+                </div>
+
+                <!-- Progress Tracker -->
+                <div class="glass-card p-6 md:p-8 mb-6">
+                    <div class="progress-tracker mb-4">
+                        <div class="progress-line">
+                            <div class="progress-line-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+
+                        <div class="progress-step completed" data-step="1">
+                            <div class="step-circle">
+                                <i data-lucide="check"></i>
+                            </div>
+                            <span class="step-label">Requested</span>
+                        </div>
+
+                        <div class="progress-step active" data-step="2">
+                            <div class="step-circle">
+                                <i data-lucide="search"></i>
+                            </div>
+                            <span class="step-label">Matching</span>
+                        </div>
+
+                        <div class="progress-step" data-step="3">
+                            <div class="step-circle">
+                                <i data-lucide="user-check"></i>
+                            </div>
+                            <span class="step-label">Volunteer Assigned</span>
+                        </div>
+
+                        <div class="progress-step" data-step="4">
+                            <div class="step-circle">
+                                <i data-lucide="truck"></i>
+                            </div>
+                            <span class="step-label">On the Way</span>
+                        </div>
+
+                        <div class="progress-step" data-step="5">
+                            <div class="step-circle">
+                                <i data-lucide="package-check"></i>
+                            </div>
+                            <span class="step-label">Delivered</span>
+                        </div>
+                    </div>
+
+                    <!-- Current Status Message -->
+                    <div class="text-center mt-6 pt-6 border-t border-white/[0.06]">
+                        <p class="text-lg text-white/70" id="statusMessage">Finding the best match for you...</p>
+                    </div>
+                </div>
+
+                <!-- Food Info & Timer Panel (Shows after matching) -->
+                <div id="foodInfoPanel" class="hidden">
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <!-- Food Details Card -->
+                        <div class="glass-card p-6">
+                            <h3 class="flex items-center gap-2 text-lg font-semibold mb-4">
+                                <i data-lucide="package" class="w-5 h-5 text-primary-400"></i>
+                                Food Details
+                            </h3>
+
+                            <div class="food-info-card mb-4">
+                                <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=200&h=200&fit=crop" alt="Food" class="food-image">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-lg mb-1" id="foodName">Dal Rice with Roti</h4>
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span class="status-badge fresh" id="foodTypeBadge">
+                                            <span>🥬</span> Veg
+                                        </span>
+                                        <span class="status-badge fresh" id="freshnessBadge">
+                                            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                                            Fresh
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-white/50">Serves <span id="foodServing">2</span> people</p>
+                                </div>
+                            </div>
+
+                            <!-- Donor Info -->
+                            <div class="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500/20 to-primary-600/20 flex items-center justify-center">
+                                    <i data-lucide="heart" class="w-5 h-5 text-primary-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-white/70">Donated by</p>
+                                    <p class="font-medium">Anonymous Donor ❤️</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Countdown Timer Card -->
+                        <div class="glass-card p-6">
+                            <h3 class="flex items-center gap-2 text-lg font-semibold mb-4">
+                                <i data-lucide="timer" class="w-5 h-5 text-amber-400"></i>
+                                Freshness Timer
+                            </h3>
+
+                            <div class="flex justify-center mb-4">
+                                <div class="countdown-timer">
+                                    <svg class="countdown-svg" viewBox="0 0 100 100">
+                                        <defs>
+                                            <linearGradient id="gradientSafe" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" style="stop-color:#10b981"/>
+                                                <stop offset="100%" style="stop-color:#34d399"/>
+                                            </linearGradient>
+                                            <linearGradient id="gradientWarning" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" style="stop-color:#f59e0b"/>
+                                                <stop offset="100%" style="stop-color:#fbbf24"/>
+                                            </linearGradient>
+                                            <linearGradient id="gradientDanger" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" style="stop-color:#ef4444"/>
+                                                <stop offset="100%" style="stop-color:#f87171"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <circle class="countdown-track" cx="50" cy="50" r="42"/>
+                                        <circle class="countdown-progress safe" cx="50" cy="50" r="42" 
+                                                stroke-dasharray="264" 
+                                                stroke-dashoffset="66"
+                                                id="countdownProgress"/>
+                                    </svg>
+                                    <div class="countdown-content">
+                                        <div class="countdown-time text-primary-400" id="countdownTime">45:00</div>
+                                        <div class="countdown-label">minutes left</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <p class="text-sm text-white/50">Food will be delivered before expiry</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Volunteer Info Card (Shows when volunteer assigned) -->
+                    <div id="volunteerCard" class="glass-card p-6 mb-6 hidden">
+                        <div class="flex items-center justify-between flex-wrap gap-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold text-lg">
+                                    RS
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-lg">Rahul S.</h4>
+                                    <div class="flex items-center gap-2 text-sm text-white/50">
+                                        <i data-lucide="star" class="w-4 h-4 text-amber-400 fill-amber-400"></i>
+                                        <span>4.9 • 150+ deliveries</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="px-4 py-2 rounded-full bg-primary-500/15 text-primary-400 font-medium">
+                                    <i data-lucide="clock" class="w-4 h-4 inline mr-1"></i>
+                                    ETA: 12 mins
+                                </span>
+                                <button class="w-12 h-12 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center hover:bg-green-500/30 transition-all">
+                                    <i data-lucide="phone" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp Preview -->
+                    <div class="whatsapp-preview mb-6">
+                        <div class="wa-header">
+                            <i data-lucide="message-circle" class="w-5 h-5 text-white"></i>
+                            <span class="text-white font-medium text-sm">WhatsApp Updates</span>
+                        </div>
+                        <div class="p-2 space-y-2" id="waMessages">
+                            <div class="wa-message">
+                                <p class="text-sm text-white/80">✅ Your food request has been received!</p>
+                                <p class="text-xs text-white/40 mt-1">Just now</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirmation Button (Shows when delivered) -->
+                    <div id="confirmationSection" class="hidden">
+                        <button 
+                            onclick="confirmReceipt()"
+                            class="btn-primary w-full py-4 rounded-2xl text-white font-semibold text-lg flex items-center justify-center gap-3"
+                        >
+                            <i data-lucide="check-circle" class="w-6 h-6"></i>
+                            <span>Received Successfully 🙏</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Back Button -->
+                <div class="text-center mt-6">
+                    <button onclick="resetForm()" class="btn-secondary px-6 py-3 rounded-xl text-white/60 font-medium">
+                        <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>
+                        Make Another Request
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Confirmation Overlay -->
+    <div class="confirmation-overlay" id="confirmationOverlay">
+        <div class="confirmation-content px-6">
+            <!-- Heart Animation -->
+            <div class="heart-animation">
+                <svg viewBox="0 0 100 100" fill="none">
+                    <path d="M50 88.5C50 88.5 11 62.5 11 36.5C11 23.5 21.5 13 34 13C42.5 13 50 18.5 50 18.5C50 18.5 57.5 13 66 13C78.5 13 89 23.5 89 36.5C89 62.5 50 88.5 50 88.5Z" 
+                          fill="url(#heartGradient)" 
+                          stroke="none"/>
+                    <defs>
+                        <linearGradient id="heartGradient" x1="11" y1="13" x2="89" y2="88.5">
+                            <stop offset="0%" style="stop-color:#f43f5e"/>
+                            <stop offset="100%" style="stop-color:#ec4899"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+
+            <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">
+                We're So Glad! ❤️
+            </h2>
+            <p class="text-xl text-white/60 mb-6">
+                We're glad you received your meal.
+            </p>
+            <p class="text-lg text-white/50 mb-8 italic">
+                "Take care, and know that we're always here if you need us."
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="index.html" class="btn-secondary px-8 py-3 rounded-2xl text-white font-medium text-center">
+                    Back to Home
+                </a>
+                <button onclick="closeConfirmation()" class="btn-primary px-8 py-3 rounded-2xl text-white font-semibold">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // ========================================
+        // GENERATE REQUEST ID
+        // ========================================
+        function generateRequestId() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let id = 'REQ-';
+            for (let i = 0; i < 5; i++) {
+                id += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return id;
+        }
+
+        const requestId = generateRequestId();
+        document.getElementById('requestId').textContent = requestId;
+
+        // ========================================
+        // PEOPLE COUNT
+        // ========================================
+        function adjustPeople(delta) {
+            const input = document.getElementById('peopleCount');
+            let value = parseInt(input.value) || 1;
+            value = Math.max(1, Math.min(50, value + delta));
+            input.value = value;
+            updatePeoplePreview();
+        }
+
+        function updatePeoplePreview() {
+            const value = parseInt(document.getElementById('peopleCount').value) || 1;
+            const text = value === 1 ? 'Food required for 1 person' : `Food required for ${value} people`;
+            document.getElementById('peoplePreview').textContent = text;
+        }
+
+        // ========================================
+        // FOOD PREFERENCE TOGGLE
+        // ========================================
+        function selectFoodPref(btn) {
+            const buttons = document.querySelectorAll('.food-toggle-btn');
+            buttons.forEach(b => {
+                b.classList.remove('active-veg', 'active-nonveg');
+            });
+
+            const value = btn.dataset.value;
+            if (value === 'veg') {
+                btn.classList.add('active-veg');
+            } else if (value === 'nonveg') {
+                btn.classList.add('active-nonveg');
+            } else {
+                btn.classList.add('active-veg'); // "Any" uses veg style
+            }
+
+            document.getElementById('foodPreference').value = value;
+        }
+
+        // ========================================
+        // FOOD TYPE CARDS
+        // ========================================
+        function toggleFoodType(card) {
+            // Single selection for simplicity
+            document.querySelectorAll('.selection-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+        }
+
+        // ========================================
+        // URGENCY SELECTION
+        // ========================================
+        function selectUrgency(card, value) {
+            document.querySelectorAll('.urgency-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            document.getElementById('urgencyLevel').value = value;
+        }
+
+        // ========================================
+        // LOCATION DETECTION
+        // ========================================
+        function detectLocation() {
+            const btn = document.getElementById('detectBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div>';
+            btn.disabled = true;
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        // Simulate reverse geocoding
+                        setTimeout(() => {
+                            const mockAddress = "42, MG Road, Indiranagar, Bangalore - 560038";
+                            document.getElementById('locationInput').value = mockAddress;
+                            
+                            // Show marker
+                            document.getElementById('mapPlaceholder').classList.add('hidden');
+                            document.getElementById('locationMarker').classList.remove('hidden');
+
+                            btn.innerHTML = originalHTML;
+                            btn.disabled = false;
+                            lucide.createIcons();
+                        }, 1500);
+                    },
+                    (error) => {
+                        alert('Could not detect location. Please enter manually.');
+                        btn.innerHTML = originalHTML;
+                        btn.disabled = false;
+                        lucide.createIcons();
+                    }
+                );
+            } else {
+                alert('Geolocation not supported.');
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+
+        // Location input change
+        document.getElementById('locationInput').addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.getElementById('mapPlaceholder').classList.add('hidden');
+                document.getElementById('locationMarker').classList.remove('hidden');
+            } else {
+                document.getElementById('mapPlaceholder').classList.remove('hidden');
+                document.getElementById('locationMarker').classList.add('hidden');
+            }
+        });
+
+        // ========================================
+        // FORM SUBMISSION
+        // ========================================
+        document.getElementById('requestForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner"></div><span>Submitting...</span>';
+
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Switch to tracking view
+            document.getElementById('formView').classList.add('hidden');
+            document.getElementById('formView').classList.remove('visible');
+            document.getElementById('trackingView').classList.remove('hidden');
+            document.getElementById('trackingView').classList.add('visible');
+            document.getElementById('trackingRequestId').textContent = requestId;
+
+            // Reset button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i data-lucide="send" class="w-5 h-5"></i><span>Request Food</span>';
+            lucide.createIcons();
+
+            // Start tracking simulation
+            startTrackingSimulation();
+        });
+
+        // ========================================
+        // TRACKING SIMULATION
+        // ========================================
+        async function startTrackingSimulation() {
+            const steps = document.querySelectorAll('.progress-step');
+            const progressFill = document.getElementById('progressFill');
+            const statusMessage = document.getElementById('statusMessage');
+            const waMessages = document.getElementById('waMessages');
+
+            const statusMessages = [
+                "Finding the best match for you...",
+                "Great news! A donor has been matched!",
+                "Volunteer Rahul is picking up your food...",
+                "Your food is on the way! 🚴",
+                "Food has been delivered! Enjoy your meal! 🎉"
+            ];
+
+            const whatsappMessages = [
+                { text: "🔍 Looking for available food near you...", delay: 2000 },
+                { text: "🎉 Good news! We found a perfect match!", delay: 4000 },
+                { text: "🚴 Volunteer Rahul is on the way to pick up your food", delay: 6000 },
+                { text: "🍱 Food is on the way! ETA: 12 mins", delay: 8000 },
+                { text: "✅ Delivered! Please confirm receipt below", delay: 10000 }
+            ];
+
+            // Step 1: Already completed (Requested)
+            await sleep(2000);
+
+            // Step 2: Matching -> Completed
+            updateStep(2, 'completed');
+            progressFill.style.width = '25%';
+            statusMessage.textContent = statusMessages[1];
+            addWaMessage(whatsappMessages[1].text);
+
+            // Show food info panel
+            document.getElementById('foodInfoPanel').classList.remove('hidden');
+            document.getElementById('foodServing').textContent = document.getElementById('peopleCount').value;
+
+            // Start countdown timer
+            startCountdown(45);
+
+            await sleep(3000);
+
+            // Step 3: Volunteer Assigned
+            updateStep(3, 'active');
+            progressFill.style.width = '50%';
+            statusMessage.textContent = statusMessages[2];
+            addWaMessage(whatsappMessages[2].text);
+            document.getElementById('volunteerCard').classList.remove('hidden');
+
+            await sleep(3000);
+
+            // Step 3 completed, Step 4: On the Way
+            updateStep(3, 'completed');
+            updateStep(4, 'active');
+            progressFill.style.width = '75%';
+            statusMessage.textContent = statusMessages[3];
+            addWaMessage(whatsappMessages[3].text);
+
+            await sleep(4000);
+
+            // Step 4 completed, Step 5: Delivered
+            updateStep(4, 'completed');
+            updateStep(5, 'completed');
+            progressFill.style.width = '100%';
+            statusMessage.textContent = statusMessages[4];
+            addWaMessage(whatsappMessages[4].text);
+
+            // Show confirmation button
+            document.getElementById('confirmationSection').classList.remove('hidden');
+        }
+
+        function updateStep(stepNum, state) {
+            const step = document.querySelector(`.progress-step[data-step="${stepNum}"]`);
+            if (!step) return;
+
+            step.classList.remove('completed', 'active');
+            if (state === 'completed') {
+                step.classList.add('completed');
+            } else if (state === 'active') {
+                step.classList.add('active');
+            }
+        }
+
+        function addWaMessage(text) {
+            const container = document.getElementById('waMessages');
+            const msg = document.createElement('div');
+            msg.className = 'wa-message';
+            msg.innerHTML = `
+                <p class="text-sm text-white/80">${text}</p>
+                <p class="text-xs text-white/40 mt-1">Just now</p>
+            `;
+            container.appendChild(msg);
+
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // ========================================
+        // COUNTDOWN TIMER
+        // ========================================
+        let countdownInterval;
+
+        function startCountdown(minutes) {
+            const progress = document.getElementById('countdownProgress');
+            const timeDisplay = document.getElementById('countdownTime');
+            const circumference = 2 * Math.PI * 42; // 264
+            
+            let totalSeconds = minutes * 60;
+            const initialSeconds = totalSeconds;
+
+            countdownInterval = setInterval(() => {
+                totalSeconds--;
+
+                const mins = Math.floor(totalSeconds / 60);
+                const secs = totalSeconds % 60;
+                timeDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+                // Update progress
+                const progressPercent = totalSeconds / initialSeconds;
+                const offset = circumference * (1 - progressPercent);
+                progress.style.strokeDashoffset = offset;
+
+                // Update color based on time
+                progress.classList.remove('safe', 'warning', 'danger');
+                if (progressPercent > 0.5) {
+                    progress.classList.add('safe');
+                    timeDisplay.className = 'countdown-time text-primary-400';
+                } else if (progressPercent > 0.25) {
+                    progress.classList.add('warning');
+                    timeDisplay.className = 'countdown-time text-amber-400';
+                    document.getElementById('freshnessBadge').className = 'status-badge near-expiry';
+                    document.getElementById('freshnessBadge').innerHTML = '<i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Near Expiry';
+                    lucide.createIcons();
+                } else {
+                    progress.classList.add('danger');
+                    timeDisplay.className = 'countdown-time text-red-400';
+                }
+
+                if (totalSeconds <= 0) {
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+        }
+
+        // ========================================
+        // CONFIRMATION
+        // ========================================
+        function confirmReceipt() {
+            document.getElementById('confirmationOverlay').classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            // Clear countdown
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+        }
+
+        function closeConfirmation() {
+            document.getElementById('confirmationOverlay').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // ========================================
+        // RESET FORM
+        // ========================================
+        function resetForm() {
+            // Clear countdown
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            // Switch views
+            document.getElementById('trackingView').classList.add('hidden');
+            document.getElementById('trackingView').classList.remove('visible');
+            document.getElementById('formView').classList.remove('hidden');
+            document.getElementById('formView').classList.add('visible');
+
+            // Reset form
+            document.getElementById('requestForm').reset();
+            document.getElementById('peopleCount').value = 2;
+            updatePeoplePreview();
+
+            // Reset progress
+            document.querySelectorAll('.progress-step').forEach((step, i) => {
+                step.classList.remove('completed', 'active');
+                if (i === 0) step.classList.add('completed');
+                if (i === 1) step.classList.add('active');
+            });
+            document.getElementById('progressFill').style.width = '0%';
+
+            // Hide panels
+            document.getElementById('foodInfoPanel').classList.add('hidden');
+            document.getElementById('volunteerCard').classList.add('hidden');
+            document.getElementById('confirmationSection').classList.add('hidden');
+
+            // Reset WhatsApp
+            document.getElementById('waMessages').innerHTML = `
+                <div class="wa-message">
+                    <p class="text-sm text-white/80">✅ Your food request has been received!</p>
+                    <p class="text-xs text-white/40 mt-1">Just now</p>
+                </div>
+            `;
+
+            // Generate new request ID
+            const newId = generateRequestId();
+            document.getElementById('requestId').textContent = newId;
+
+            // Reset countdown display
+            document.getElementById('countdownTime').textContent = '45:00';
+            document.getElementById('countdownProgress').style.strokeDashoffset = 66;
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ========================================
+        // INITIALIZE
+        // ========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePeoplePreview();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate Food - FoodBridge</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- FoodBridge API client (shares auth token with index.html) -->
+    <script src="api.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        },
+                        dark: {
+                            50: '#18181b',
+                            100: '#27272a',
+                            200: '#3f3f46',
+                            300: '#52525b',
+                            400: '#71717a',
+                            500: '#a1a1aa',
+                            600: '#d4d4d8',
+                            700: '#e4e4e7',
+                            800: '#f4f4f5',
+                            900: '#fafafa',
+                        },
+                        accent: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #050508;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0f;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Background Effects */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+        }
+
+        .bg-orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+            top: -200px;
+            right: -150px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .bg-orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+            bottom: -150px;
+            left: -150px;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        .bg-orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+        }
+
+        .glass-card-light {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .glass-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+        }
+
+        .glass-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Toggle Styles */
+        .toggle-group {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 14px;
+            padding: 4px;
+        }
+
+        .toggle-option {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            padding: 12px 24px;
+            cursor: pointer;
+        }
+
+        .toggle-option.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .toggle-option.active-veg {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+
+        .toggle-option.active-nonveg {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        /* Category Tags */
+        .category-tag {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-tag:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .category-tag.active {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        /* File Upload Zone */
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .upload-zone.has-image {
+            border-style: solid;
+            border-color: #10b981;
+        }
+
+        /* Radio Cards */
+        .radio-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .radio-card.selected {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .radio-indicator {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radio-card.selected .radio-indicator {
+            border-color: #10b981;
+            background: #10b981;
+        }
+
+        .radio-indicator::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .radio-card.selected .radio-indicator::after {
+            opacity: 1;
+        }
+
+        /* Info Cards */
+        .info-card {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+        }
+
+        .warning-card {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+        }
+
+        .error-card {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+        }
+
+        /* Preview Badge */
+        .preview-badge {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Number Input */
+        .number-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .number-btn {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .number-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #10b981;
+        }
+
+        .number-value {
+            flex: 1;
+            text-align: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            background: transparent;
+            border: none;
+            color: white;
+        }
+
+        .number-value:focus {
+            outline: none;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Success Screen */
+        .success-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 8, 0.98);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .success-screen.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-content {
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.5s ease 0.2s;
+        }
+
+        .success-screen.show .success-content {
+            transform: scale(1) translateY(0);
+        }
+
+        /* Checkmark Animation */
+        .checkmark-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.4);
+            animation: scaleIn 0.5s ease 0.3s both;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .checkmark {
+            width: 50px;
+            height: 50px;
+            stroke: white;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .checkmark-path {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheck 0.5s ease 0.6s forwards;
+        }
+
+        @keyframes drawCheck {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* Confetti */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            animation: confettiFall 3s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(500px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* WhatsApp Preview */
+        .whatsapp-preview {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .wa-header {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            padding: 12px 16px;
+        }
+
+        .wa-message {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 8px;
+            border-top-left-radius: 4px;
+        }
+
+        /* Map Container */
+        .map-container {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .map-placeholder {
+            background: 
+                linear-gradient(rgba(16, 185, 129, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .location-pin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, -100%); }
+            50% { transform: translate(-50%, -110%); }
+        }
+
+        /* Form Steps Indicator */
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .step-dot.active {
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .step-dot.completed {
+            background: #10b981;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .preview-sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .glass-card {
+                border-radius: 20px;
+            }
+
+            .toggle-option {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-effects">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-4 lg:px-8 py-4 bg-[rgba(5,5,8,0.8)] backdrop-blur-xl border-b border-white/[0.08]">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/30">
+                    <i data-lucide="heart-handshake" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="font-display text-xl font-bold">FoodBridge</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-8">
+                <a href="index.html" class="text-white/60 hover:text-primary-400 transition-colors text-sm font-medium">Home</a>
+                <a href="#" class="text-white/60 hover:text-primary-400 transition-colors text-sm font-medium">How It Works</a>
+                <a href="#" class="text-white/60 hover:text-primary-400 transition-colors text-sm font-medium">Track Donation</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.08] text-sm text-white/60">
+                    <i data-lucide="github" class="w-4 h-4 text-primary-400"></i>
+                    <span>Open Source</span>
+                </div>
+                <a href="#" class="px-5 py-2.5 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold text-sm shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 transition-all hover:-translate-y-0.5">
+                    Get Help
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 pt-28 pb-16 px-4 lg:px-8 min-h-screen">
+        <div class="max-w-7xl mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-12 fade-in">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.08] mb-6">
+                    <div class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></div>
+                    <span class="text-sm text-white/60">Making a difference, one meal at a time</span>
+                </div>
+                <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+                    <span class="gradient-text">Donate Food</span>
+                </h1>
+                <p class="text-lg text-white/60 max-w-xl mx-auto">
+                    Turn your extra food into someone's next meal. Your kindness can feed families in need.
+                </p>
+            </div>
+
+            <!-- Form Layout -->
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Main Form -->
+                <div class="lg:col-span-2">
+                    <form id="donationForm" class="glass-card p-6 md:p-8">
+                        <!-- Order ID (Auto Generated) -->
+                        <div class="flex items-center justify-between mb-8 pb-6 border-b border-white/[0.08]">
+                            <div>
+                                <p class="text-sm text-white/40 mb-1">Donation ID</p>
+                                <p class="font-display text-xl font-semibold text-primary-400" id="orderId">FB-2024-XXXXX</p>
+                            </div>
+                            <div class="step-indicator">
+                                <div class="step-dot active"></div>
+                                <div class="step-dot"></div>
+                                <div class="step-dot"></div>
+                            </div>
+                        </div>
+
+                        <!-- Image Upload Section -->
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium text-white/80 mb-3">
+                                <span class="flex items-center gap-2">
+                                    <i data-lucide="camera" class="w-4 h-4 text-primary-400"></i>
+                                    Food Image
+                                </span>
+                            </label>
+                            <div class="upload-zone p-8 text-center" id="uploadZone">
+                                <input type="file" id="foodImage" accept="image/*" class="hidden">
+                                <div id="uploadPlaceholder">
+                                    <div class="w-16 h-16 rounded-2xl bg-white/[0.05] flex items-center justify-center mx-auto mb-4">
+                                        <i data-lucide="image-plus" class="w-8 h-8 text-white/40"></i>
+                                    </div>
+                                    <p class="text-white/60 mb-2">Drag and drop your image here</p>
+                                    <p class="text-sm text-white/40 mb-4">or</p>
+                                    <button type="button" class="px-6 py-2.5 rounded-full bg-white/[0.05] border border-white/[0.1] text-white/80 font-medium hover:bg-white/[0.1] transition-all" onclick="document.getElementById('foodImage').click()">
+                                        Browse Files
+                                    </button>
+                                </div>
+                                <div id="imagePreview" class="hidden">
+                                    <img src="" alt="Preview" class="max-h-48 rounded-xl mx-auto mb-4">
+                                    <button type="button" class="text-red-400 text-sm hover:text-red-300 transition-colors" onclick="removeImage()">
+                                        <i data-lucide="x" class="w-4 h-4 inline mr-1"></i>
+                                        Remove Image
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Food Name -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-white/80 mb-3">
+                                <span class="flex items-center gap-2">
+                                    <i data-lucide="utensils" class="w-4 h-4 text-primary-400"></i>
+                                    Food Name
+                                </span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="foodName"
+                                class="glass-input w-full px-5 py-4 text-base"
+                                placeholder="e.g., Paneer Butter Masala, Biryani, Fresh Fruits"
+                                required
+                            >
+                        </div>
+
+                        <!-- Food Type & Category Row -->
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <!-- Food Type Toggle -->
+                            <div>
+                                <label class="block text-sm font-medium text-white/80 mb-3">
+                                    <span class="flex items-center gap-2">
+                                        <i data-lucide="leaf" class="w-4 h-4 text-primary-400"></i>
+                                        Food Type
+                                    </span>
+                                </label>
+                                <div class="toggle-group flex">
+                                    <div class="toggle-option active-veg active flex-1 text-center text-sm font-medium" data-value="veg" onclick="selectFoodType(this)">
+                                        🥬 Vegetarian
+                                    </div>
+                                    <div class="toggle-option flex-1 text-center text-sm font-medium text-white/60" data-value="non_veg" onclick="selectFoodType(this)">
+                                        🍖 Non-Veg
+                                    </div>
+                                </div>
+                                <input type="hidden" id="foodType" value="veg">
+                            </div>
+
+                            <!-- Food Category -->
+                            <div>
+                                <label class="block text-sm font-medium text-white/80 mb-3">
+                                    <span class="flex items-center gap-2">
+                                        <i data-lucide="package" class="w-4 h-4 text-primary-400"></i>
+                                        Category
+                                    </span>
+                                </label>
+                                <div class="flex flex-wrap gap-2">
+                                    <div class="category-tag active text-sm" data-value="cooked" onclick="selectCategory(this)">
+                                        🍳 Cooked
+                                    </div>
+                                    <div class="category-tag text-sm text-white/60" data-value="raw" onclick="selectCategory(this)">
+                                        🥕 Raw
+                                    </div>
+                                    <div class="category-tag text-sm text-white/60" data-value="packaged" onclick="selectCategory(this)">
+                                        📦 Packaged
+                                    </div>
+                                </div>
+                                <input type="hidden" id="foodCategory" value="cooked">
+                            </div>
+                        </div>
+
+                        <!-- Serving Size -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-white/80 mb-3">
+                                <span class="flex items-center gap-2">
+                                    <i data-lucide="users" class="w-4 h-4 text-primary-400"></i>
+                                    Number of People This Can Feed
+                                </span>
+                            </label>
+                            <div class="number-input-wrapper">
+                                <button type="button" class="number-btn" onclick="adjustServing(-1)">−</button>
+                                <input type="number" id="servingSize" class="number-value" value="5" min="1" max="500" onchange="updateServingPreview()">
+                                <button type="button" class="number-btn" onclick="adjustServing(1)">+</button>
+                            </div>
+                            <div class="mt-3 flex items-center gap-2">
+                                <div class="px-4 py-2 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-400 text-sm font-medium" id="servingPreview">
+                                    🍽️ This meal can feed 5 people
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Expiry Time -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-white/80 mb-3">
+                                <span class="flex items-center gap-2">
+                                    <i data-lucide="clock" class="w-4 h-4 text-primary-400"></i>
+                                    Food Expiry Time
+                                </span>
+                            </label>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <input 
+                                    type="date" 
+                                    id="expiryDate"
+                                    class="glass-input px-5 py-4 text-base"
+                                    required
+                                    onchange="checkExpiry()"
+                                >
+                                <input 
+                                    type="time" 
+                                    id="expiryTime"
+                                    class="glass-input px-5 py-4 text-base"
+                                    required
+                                    onchange="checkExpiry()"
+                                >
+                            </div>
+                            <div id="expiryWarning" class="hidden mt-3">
+                                <div class="warning-card px-4 py-3 flex items-center gap-3">
+                                    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i>
+                                    <span class="text-sm text-amber-400">Food expires soon! We'll prioritize finding a nearby volunteer.</span>
+                                </div>
+                            </div>
+                            <div id="expiryError" class="hidden mt-3">
+                                <div class="error-card px-4 py-3 flex items-center gap-3">
+                                    <i data-lucide="alert-circle" class="w-5 h-5 text-red-400"></i>
+                                    <span class="text-sm text-red-400">Expiry time must be in the future.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-white/80 mb-3">
+                                <span class="flex items-center gap-2">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-primary-400"></i>
+                                    Pickup Location
+                                </span>
+                            </label>
+                            
+                            <!-- Location Input -->
+                            <div class="relative mb-4">
+                                <input 
+                                    type="text" 
+                                    id="locationInput"
+                                    class="glass-input w-full px-5 py-4 pr-32 text-base"
+                                    placeholder="Enter your address or use auto-detect"
+                                    required
+                                >
+                                <button 
+                                    type="button" 
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-xl bg-primary-500/20 text-primary-400 text-sm font-medium hover:bg-primary-500/30 transition-all flex items-center gap-2"
+                                    onclick="detectLocation()"
+                                    id="detectBtn"
+                                >
+                                    <i data-lucide="locate" class="w-4 h-4"></i>
+                                    <span class="hidden sm:inline">Auto Detect</span>
+                                </button>
+                            </div>
+
+                            <!-- Map Preview -->
+                            <div id="donateMap" style="height:200px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);"></div>
+                        </div>
+
+                        <!-- Delivery Preference -->
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium text-white/80 mb-3">
+                                <span class="flex items-center gap-2">
+                                    <i data-lucide="truck" class="w-4 h-4 text-primary-400"></i>
+                                    Delivery Preference
+                                </span>
+                            </label>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="radio-card selected" onclick="selectDelivery(this, 'direct')">
+                                    <div class="flex items-start gap-4">
+                                        <div class="radio-indicator mt-0.5"></div>
+                                        <div>
+                                            <p class="font-medium mb-1">Direct to Receiver</p>
+                                            <p class="text-sm text-white/50">Volunteer delivers directly to families in need</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="radio-card" onclick="selectDelivery(this, 'ngo')">
+                                    <div class="flex items-start gap-4">
+                                        <div class="radio-indicator mt-0.5"></div>
+                                        <div>
+                                            <p class="font-medium mb-1">Through NGO Partner</p>
+                                            <p class="text-sm text-white/50">Food goes to verified NGO for distribution</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="deliveryPreference" value="direct">
+                        </div>
+
+                        <!-- Info Cards -->
+                        <div class="space-y-3 mb-8">
+                            <div class="info-card px-4 py-3 flex items-center gap-3">
+                                <i data-lucide="zap" class="w-5 h-5 text-primary-400"></i>
+                                <span class="text-sm text-primary-300">Nearest available volunteer will be assigned automatically</span>
+                            </div>
+                            <div class="info-card px-4 py-3 flex items-center gap-3">
+                                <i data-lucide="shield-check" class="w-5 h-5 text-primary-400"></i>
+                                <span class="text-sm text-primary-300">Only matched if delivery is possible before expiry</span>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button 
+                            type="submit" 
+                            id="submitBtn"
+                            class="btn-primary w-full py-4 rounded-2xl text-white font-semibold text-lg flex items-center justify-center gap-3"
+                        >
+                            <i data-lucide="heart" class="w-5 h-5"></i>
+                            <span>Donate Now</span>
+                        </button>
+
+                        <p class="text-center text-sm text-white/40 mt-4">
+                            By donating, you agree to our <a href="#" class="text-primary-400 hover:underline">Terms</a> and <a href="#" class="text-primary-400 hover:underline">Guidelines</a>
+                        </p>
+                    </form>
+                </div>
+
+                <!-- Preview Sidebar -->
+                <div class="hidden lg:block">
+                    <div class="sticky top-28 space-y-6">
+                        <!-- Live Preview Card -->
+                        <div class="glass-card p-6">
+                            <div class="flex items-center gap-2 mb-6">
+                                <div class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></div>
+                                <span class="text-sm font-medium text-white/60">Live Preview</span>
+                            </div>
+
+                            <!-- Preview Image -->
+                            <div class="aspect-video rounded-xl bg-black/30 mb-4 overflow-hidden flex items-center justify-center" id="previewImageContainer">
+                                <i data-lucide="image" class="w-12 h-12 text-white/20"></i>
+                            </div>
+
+                            <!-- Preview Details -->
+                            <div class="space-y-3">
+                                <h3 class="font-display text-lg font-semibold" id="previewName">Food Name</h3>
+                                
+                                <!-- Badges -->
+                                <div class="flex flex-wrap gap-2" id="previewBadges">
+                                    <span class="preview-badge bg-green-500/20 text-green-400">🥬 Veg</span>
+                                    <span class="preview-badge bg-amber-500/20 text-amber-400">🍳 Cooked</span>
+                                </div>
+
+                                <!-- Serving -->
+                                <div class="flex items-center gap-2 text-white/60">
+                                    <i data-lucide="users" class="w-4 h-4"></i>
+                                    <span id="previewServing">Serves 5 people</span>
+                                </div>
+
+                                <!-- Expiry -->
+                                <div class="flex items-center gap-2 text-white/60">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                    <span id="previewExpiry">Expiry: Not set</span>
+                                </div>
+
+                                <!-- Location -->
+                                <div class="flex items-center gap-2 text-white/60">
+                                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                    <span id="previewLocation">Location: Not set</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Impact Card -->
+                        <div class="glass-card p-6 text-center">
+                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500/20 to-primary-600/20 flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="heart" class="w-8 h-8 text-primary-400"></i>
+                            </div>
+                            <h4 class="font-display text-2xl font-bold mb-2">
+                                <span class="gradient-text" id="impactCount">5</span>
+                            </h4>
+                            <p class="text-sm text-white/60">People will be fed through your donation</p>
+                            
+                            <div class="mt-4 pt-4 border-t border-white/[0.08]">
+                                <p class="text-xs text-white/40 italic">
+                                    "A family will sleep better tonight because of you"
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp Preview -->
+                        <div class="whatsapp-preview">
+                            <div class="wa-header flex items-center gap-3 text-white">
+                                <i data-lucide="message-circle" class="w-5 h-5"></i>
+                                <span class="font-medium text-sm">WhatsApp Updates</span>
+                            </div>
+                            <div class="p-2 space-y-2">
+                                <div class="wa-message">
+                                    <p class="text-sm text-white/80">📍 Pickup location confirmed</p>
+                                    <p class="text-xs text-white/40 mt-1">You'll receive this after submission</p>
+                                </div>
+                                <div class="wa-message">
+                                    <p class="text-sm text-white/80">🚴 Volunteer assigned nearby</p>
+                                    <p class="text-xs text-white/40 mt-1">Real-time tracking enabled</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Screen -->
+    <div class="success-screen" id="successScreen">
+        <div class="success-content text-center px-4 max-w-lg mx-auto">
+            <!-- Confetti Container -->
+            <div id="confettiContainer" class="fixed inset-0 pointer-events-none overflow-hidden"></div>
+
+            <!-- Checkmark -->
+            <div class="checkmark-circle">
+                <svg class="checkmark" viewBox="0 0 50 50">
+                    <path class="checkmark-path" d="M14 27 L22 35 L38 16"></path>
+                </svg>
+            </div>
+
+            <!-- Thank You Message -->
+            <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">
+                Thank You for Your <span class="gradient-text">Kindness</span> ❤️
+            </h2>
+
+            <p class="text-xl text-white/70 mb-8">
+                Your food will help feed <strong class="text-primary-400" id="successPeopleCount">5</strong> people today
+            </p>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="glass-card p-6">
+                    <div class="text-3xl font-display font-bold text-primary-400 mb-1" id="successServing">5</div>
+                    <p class="text-sm text-white/60">People Fed</p>
+                </div>
+                <div class="glass-card p-6">
+                    <div class="text-3xl font-display font-bold text-amber-400 mb-1">~15 min</div>
+                    <p class="text-sm text-white/60">Est. Delivery</p>
+                </div>
+            </div>
+
+            <!-- Order ID -->
+            <div class="glass-card-light rounded-2xl p-4 mb-8">
+                <p class="text-sm text-white/50 mb-1">Your Donation ID</p>
+                <p class="font-display text-xl font-semibold text-primary-400" id="successOrderId">FB-2024-XXXXX</p>
+            </div>
+
+            <!-- Emotional Message -->
+            <div class="mb-8">
+                <p class="text-lg text-white/60 italic">
+                    "A family will sleep better tonight because of you"
+                </p>
+            </div>
+
+            <!-- WhatsApp Preview -->
+            <div class="whatsapp-preview mb-8 max-w-sm mx-auto">
+                <div class="wa-header flex items-center gap-3 text-white">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    <span class="font-medium text-sm">WhatsApp Notifications</span>
+                </div>
+                <div class="p-2 space-y-2" id="waSuccessMessages"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="index.html" class="px-8 py-3 rounded-2xl bg-white/[0.05] border border-white/[0.1] text-white font-semibold hover:bg-white/[0.1] transition-all">
+                    Back to Home
+                </a>
+                <button onclick="trackDonation()" class="btn-primary px-8 py-3 rounded-2xl text-white font-semibold flex items-center justify-center gap-2">
+                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                    Track Donation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // ========================================
+        // GENERATE ORDER ID
+        // ========================================
+        function generateOrderId() {
+            const timestamp = Date.now().toString(36).toUpperCase();
+            const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+            return `FB-${new Date().getFullYear()}-${timestamp}${random}`;
+        }
+
+        // Set initial order ID
+        const orderId = generateOrderId();
+        document.getElementById('orderId').textContent = orderId;
+
+        // ========================================
+        // IMAGE UPLOAD
+        // ========================================
+        const uploadZone = document.getElementById('uploadZone');
+        const foodImageInput = document.getElementById('foodImage');
+        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+        const imagePreview = document.getElementById('imagePreview');
+
+        // Drag and drop handlers
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                handleImageUpload(files[0]);
+            }
+        });
+
+        uploadZone.addEventListener('click', (e) => {
+            if (e.target === uploadZone || uploadPlaceholder.contains(e.target)) {
+                foodImageInput.click();
+            }
+        });
+
+        foodImageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleImageUpload(e.target.files[0]);
+            }
+        });
+
+        function handleImageUpload(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadPlaceholder.classList.add('hidden');
+                imagePreview.classList.remove('hidden');
+                imagePreview.querySelector('img').src = e.target.result;
+                uploadZone.classList.add('has-image');
+                
+                // Update preview sidebar
+                const previewContainer = document.getElementById('previewImageContainer');
+                previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview" class="w-full h-full object-cover">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage() {
+            foodImageInput.value = '';
+            uploadPlaceholder.classList.remove('hidden');
+            imagePreview.classList.add('hidden');
+            uploadZone.classList.remove('has-image');
+            
+            // Reset preview sidebar
+            const previewContainer = document.getElementById('previewImageContainer');
+            previewContainer.innerHTML = '<i data-lucide="image" class="w-12 h-12 text-white/20"></i>';
+            lucide.createIcons();
+        }
+
+        // ========================================
+        // FOOD TYPE TOGGLE
+        // ========================================
+        function selectFoodType(element) {
+            const options = element.parentElement.querySelectorAll('.toggle-option');
+            options.forEach(opt => {
+                opt.classList.remove('active', 'active-veg', 'active-nonveg');
+                opt.classList.add('text-white/60');
+            });
+            
+            const value = element.dataset.value;
+            element.classList.remove('text-white/60');
+            element.classList.add('active');
+            element.classList.add(value === 'veg' ? 'active-veg' : 'active-nonveg');
+            
+            document.getElementById('foodType').value = value;
+            updatePreviewBadges();
+        }
+
+        // ========================================
+        // FOOD CATEGORY
+        // ========================================
+        function selectCategory(element) {
+            const tags = document.querySelectorAll('.category-tag');
+            tags.forEach(tag => {
+                tag.classList.remove('active');
+                tag.classList.add('text-white/60');
+            });
+            
+            element.classList.add('active');
+            element.classList.remove('text-white/60');
+            document.getElementById('foodCategory').value = element.dataset.value;
+            updatePreviewBadges();
+        }
+
+        // ========================================
+        // SERVING SIZE
+        // ========================================
+        function adjustServing(delta) {
+            const input = document.getElementById('servingSize');
+            let value = parseInt(input.value) || 1;
+            value = Math.max(1, Math.min(500, value + delta));
+            input.value = value;
+            updateServingPreview();
+        }
+
+        function updateServingPreview() {
+            const value = parseInt(document.getElementById('servingSize').value) || 1;
+            document.getElementById('servingPreview').textContent = `🍽️ This meal can feed ${value} people`;
+            document.getElementById('previewServing').textContent = `Serves ${value} people`;
+            document.getElementById('impactCount').textContent = value;
+        }
+
+        // ========================================
+        // EXPIRY CHECK
+        // ========================================
+        function checkExpiry() {
+            const dateInput = document.getElementById('expiryDate');
+            const timeInput = document.getElementById('expiryTime');
+            const warningEl = document.getElementById('expiryWarning');
+            const errorEl = document.getElementById('expiryError');
+            
+            if (!dateInput.value || !timeInput.value) {
+                warningEl.classList.add('hidden');
+                errorEl.classList.add('hidden');
+                document.getElementById('previewExpiry').textContent = 'Expiry: Not set';
+                return;
+            }
+            
+            const expiryDate = new Date(`${dateInput.value}T${timeInput.value}`);
+            const now = new Date();
+            const diffHours = (expiryDate - now) / (1000 * 60 * 60);
+            
+            if (diffHours < 0) {
+                errorEl.classList.remove('hidden');
+                warningEl.classList.add('hidden');
+                document.getElementById('previewExpiry').textContent = 'Expiry: Invalid';
+            } else if (diffHours < 2) {
+                warningEl.classList.remove('hidden');
+                errorEl.classList.add('hidden');
+                document.getElementById('previewExpiry').textContent = `Expires in ${Math.round(diffHours * 60)} mins`;
+            } else {
+                warningEl.classList.add('hidden');
+                errorEl.classList.add('hidden');
+                const formattedDate = expiryDate.toLocaleDateString('en-IN', { 
+                    day: 'numeric', 
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                document.getElementById('previewExpiry').textContent = `Expires: ${formattedDate}`;
+            }
+        }
+
+        // Set minimum date to today
+        document.getElementById('expiryDate').min = new Date().toISOString().split('T')[0];
+
+        // ========================================
+        // LEAFLET MAP SETUP
+        // ========================================
+        let map = null;
+        let marker = null;
+
+        function initMap(lat, lng) {
+            if (!map) {
+                map = L.map('donateMap', { zoomControl: true }).setView([lat, lng], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+                map.on('click', function(e) {
+                    setMapPin(e.latlng.lat, e.latlng.lng);
+                    reverseGeocode(e.latlng.lat, e.latlng.lng);
+                });
+            } else {
+                map.setView([lat, lng], 15);
+            }
+            setMapPin(lat, lng);
+        }
+
+        function setMapPin(lat, lng) {
+            window._donateLat = lat.toFixed(6);
+            window._donateLng = lng.toFixed(6);
+            if (marker) marker.setLatLng([lat, lng]);
+            else marker = L.marker([lat, lng]).addTo(map);
+            document.getElementById('previewLocation').textContent = lat.toFixed(4) + ', ' + lng.toFixed(4);
+        }
+
+        async function reverseGeocode(lat, lng) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+                const data = await res.json();
+                const address = data.display_name || (lat.toFixed(4) + ', ' + lng.toFixed(4));
+                document.getElementById('locationInput').value = address;
+                document.getElementById('previewLocation').textContent = address.substring(0, 35) + '...';
+            } catch(_) {}
+        }
+
+        async function geocodeAddress(address) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`);
+                const data = await res.json();
+                if (data.length > 0) {
+                    initMap(parseFloat(data[0].lat), parseFloat(data[0].lon));
+                }
+            } catch(_) {}
+        }
+
+        // ========================================
+        // LOCATION DETECTION
+        // ========================================
+        function detectLocation() {
+            const btn = document.getElementById('detectBtn');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div>';
+            btn.disabled = true;
+
+            if (!navigator.geolocation) {
+                alert('Geolocation not supported.');
+                btn.innerHTML = originalContent; btn.disabled = false;
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const { latitude: lat, longitude: lng } = pos.coords;
+                    initMap(lat, lng);
+                    await reverseGeocode(lat, lng);
+                    btn.innerHTML = originalContent; btn.disabled = false;
+                    lucide.createIcons();
+                },
+                () => {
+                    alert('Could not get location. Enter manually.');
+                    btn.innerHTML = originalContent; btn.disabled = false;
+                    lucide.createIcons();
+                }
+            );
+        }
+
+        // Store coords when geolocation is used
+        window._donateLat = null;
+        window._donateLng = null;
+
+        // Geocode when user types address and presses Enter
+        document.getElementById('locationInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); geocodeAddress(this.value.trim()); }
+        });
+
+        document.getElementById('locationInput').addEventListener('input', function() {
+            const value = this.value.trim();
+            document.getElementById('previewLocation').textContent = value ? value.substring(0, 35) + '...' : 'Location: Not set';
+        });
+
+        // ========================================
+        // DELIVERY PREFERENCE
+        // ========================================
+        function selectDelivery(element, value) {
+            const cards = document.querySelectorAll('.radio-card');
+            cards.forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('deliveryPreference').value = value;
+        }
+
+        // ========================================
+        // UPDATE PREVIEW BADGES
+        // ========================================
+        function updatePreviewBadges() {
+            const foodType = document.getElementById('foodType').value;
+            const category = document.getElementById('foodCategory').value;
+            
+            const typeEmoji = foodType === 'veg' ? '🥬' : '🍖';
+            const typeLabel = foodType === 'veg' ? 'Veg' : 'Non-Veg';
+            const typeColor = foodType === 'veg' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400';
+            
+            const categoryEmoji = category === 'cooked' ? '🍳' : category === 'raw' ? '🥕' : '📦';
+            const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
+            
+            document.getElementById('previewBadges').innerHTML = `
+                <span class="preview-badge ${typeColor}">${typeEmoji} ${typeLabel}</span>
+                <span class="preview-badge bg-amber-500/20 text-amber-400">${categoryEmoji} ${categoryLabel}</span>
+            `;
+        }
+
+        // Update preview name
+        document.getElementById('foodName').addEventListener('input', function() {
+            const value = this.value.trim() || 'Food Name';
+            document.getElementById('previewName').textContent = value;
+        });
+
+        // ========================================
+        // FORM SUBMISSION
+        // ========================================
+        document.getElementById('donationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Check login
+            const token = localStorage.getItem('fb_token');
+            if (!token) {
+                alert('Please log in first. Go back to the home page and sign in.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalContent = submitBtn.innerHTML;
+
+            // Validate expiry
+            const expiryDate = document.getElementById('expiryDate').value;
+            const expiryTime = document.getElementById('expiryTime').value;
+            if (!expiryDate || !expiryTime) {
+                alert('Please set the food expiry date and time.');
+                return;
+            }
+            const expiry = new Date(`${expiryDate}T${expiryTime}`);
+            if (expiry < new Date()) {
+                alert('Please set a valid expiry time in the future.');
+                return;
+            }
+
+            const locationInput = document.getElementById('locationInput').value.trim();
+            if (!locationInput) {
+                alert('Please enter a pickup location.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner"></div><span>Processing...</span>';
+
+            try {
+                // Build FormData for multipart (image support)
+                const fd = new FormData();
+                fd.append('food_type', document.getElementById('foodType').value);
+                fd.append('category', document.getElementById('foodCategory').value);
+                fd.append('description', document.getElementById('foodName').value.trim());
+                fd.append('quantity_serves', document.getElementById('servingSize').value);
+                fd.append('expiry_time', expiry.toISOString());
+                fd.append('pickup_address', locationInput);
+                // Use 0,0 as fallback coords if geolocation wasn't used
+                fd.append('pickup_lat', window._donateLat || '0');
+                fd.append('pickup_lng', window._donateLng || '0');
+                const imageFile = document.getElementById('foodImage').files[0];
+                if (imageFile) fd.append('image', imageFile);
+
+                const res = await fetch('http://localhost:8000/api/v1/donations', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    body: fd
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({ detail: res.statusText }));
+                    throw new Error(err.detail || 'Submission failed');
+                }
+                const result = await res.json();
+
+                // Send WhatsApp confirmation to donor
+                const user = JSON.parse(localStorage.getItem('fb_user') || '{}');
+                await fetch('http://localhost:8000/api/v1/donations/' + result.id + '/notify', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                }).catch(() => {}); // fire and forget
+
+                // Update success screen
+                const servingSize = document.getElementById('servingSize').value;
+                document.getElementById('successPeopleCount').textContent = servingSize;
+                document.getElementById('successServing').textContent = servingSize;
+                document.getElementById('successOrderId').textContent = 'FB-' + result.id.toString().slice(0, 8).toUpperCase();
+
+                // Build WhatsApp messages from real form data
+                const foodName = document.getElementById('foodName').value.trim();
+                const location = document.getElementById('locationInput').value.trim();
+                const expiryLabel = document.getElementById('previewExpiry').textContent;
+                const donationId = 'FB-' + result.id.toString().slice(0, 8).toUpperCase();
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('waSuccessMessages').innerHTML = `
+                    <div class="wa-message">
+                        <p class="text-sm text-white/80">✅ <strong>${foodName}</strong> donation received! (${donationId})</p>
+                        <p class="text-xs text-white/40 mt-1">${timeStr} · Just now</p>
+                    </div>
+                    <div class="wa-message">
+                        <p class="text-sm text-white/80">📍 Pickup: ${location.substring(0, 40)}${location.length > 40 ? '...' : ''}</p>
+                        <p class="text-xs text-white/40 mt-1">Feeds ${servingSize} people · ${expiryLabel}</p>
+                    </div>
+                    <div class="wa-message">
+                        <p class="text-sm text-white/80">🚴 Finding nearest volunteer for your donation...</p>
+                        <p class="text-xs text-white/40 mt-1">You'll be notified when assigned</p>
+                    </div>
+                `;
+                lucide.createIcons();
+
+                document.getElementById('successScreen').classList.add('show');
+                document.body.style.overflow = 'hidden';
+                createConfetti();
+            } catch (err) {
+                let msg = err.message;
+                try {
+                    const parsed = JSON.parse(msg);
+                    if (parsed.detail) msg = Array.isArray(parsed.detail) ? parsed.detail.map(e => e.msg).join(', ') : parsed.detail;
+                } catch(_) {}
+                alert('Error: ' + msg);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalContent;
+                lucide.createIcons();
+            }
+        });
+
+        // ========================================
+        // CONFETTI ANIMATION
+        // ========================================
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#10b981', '#34d399', '#f59e0b', '#fbbf24', '#8b5cf6', '#a78bfa'];
+            
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    container.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 20);
+            }
+        }
+
+        // ========================================
+        // TRACK DONATION
+        // ========================================
+        function trackDonation() {
+            alert('Tracking feature coming soon! You will receive WhatsApp updates.');
+        }
+
+        // ========================================
+        // INITIALIZE
+        // ========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            updateServingPreview();
+            updatePreviewBadges();
+
+            // Show logged-in state in nav if token exists
+            if (!localStorage.getItem('fb_token')) {
+                const banner = document.createElement('div');
+                banner.style.cssText = 'position:fixed;top:72px;left:0;right:0;z-index:100;background:rgba(245,158,11,0.15);border-bottom:1px solid rgba(245,158,11,0.3);padding:0.6rem 1rem;text-align:center;font-size:0.85rem;color:#f59e0b;';
+                banner.innerHTML = '⚠️ You are not logged in. <a href="index.html" style="color:#10b981;font-weight:600;text-decoration:underline;">Sign in on the home page</a> first, then come back here.';
+                document.body.appendChild(banner);
+            }
+
+            // Auto-init map to user's real location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        initMap(pos.coords.latitude, pos.coords.longitude);
+                        await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+                    },
+                    () => initMap(20.5937, 78.9629) // fallback: India center
+                );
+            } else {
+                initMap(20.5937, 78.9629);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join as Volunteer - FoodBridge</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        },
+                        accent: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        purple: {
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #050508 0%, #0a0a12 50%, #080810 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0f;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        /* Background Effects */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.35;
+        }
+
+        .bg-orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
+            top: -200px;
+            right: -150px;
+            animation: orbFloat 25s ease-in-out infinite;
+        }
+
+        .bg-orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+            bottom: -150px;
+            left: -150px;
+            animation: orbFloat 30s ease-in-out infinite reverse;
+        }
+
+        .bg-orb-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+            top: 50%;
+            left: 30%;
+            animation: orbPulse 20s ease-in-out infinite;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(25px, -25px) scale(1.02); }
+            66% { transform: translate(-15px, 15px) scale(0.98); }
+        }
+
+        @keyframes orbPulse {
+            0%, 100% { opacity: 0.35; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.025);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+        }
+
+        .glass-card-light {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+        }
+
+        .glass-input {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .glass-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+        }
+
+        .glass-input::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-text-green {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Primary Button */
+        .btn-primary {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.25);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(245, 158, 11, 0.35);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Big Toggle Switch (Uber-style) */
+        .availability-toggle {
+            width: 100%;
+            height: 80px;
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        .availability-toggle.off {
+            background: linear-gradient(135deg, rgba(100, 100, 100, 0.2) 0%, rgba(60, 60, 60, 0.3) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .availability-toggle.on {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.35) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 8px;
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .availability-toggle.off .toggle-slider {
+            left: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .availability-toggle.on .toggle-slider {
+            left: calc(100% - 72px);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .toggle-text {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .availability-toggle.off .toggle-text {
+            right: 24px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .availability-toggle.on .toggle-text {
+            left: 24px;
+            color: #34d399;
+        }
+
+        .toggle-slider i {
+            width: 28px;
+            height: 28px;
+            transition: all 0.3s ease;
+        }
+
+        .availability-toggle.off .toggle-slider i {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .availability-toggle.on .toggle-slider i {
+            color: white;
+        }
+
+        /* Small Toggle */
+        .toggle-switch {
+            width: 56px;
+            height: 32px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .toggle-knob {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            background: white;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active .toggle-knob {
+            left: 28px;
+        }
+
+        /* Time Slot Pills */
+        .time-slot {
+            padding: 12px 20px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .time-slot:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.35);
+        }
+
+        .time-slot.selected {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .time-slot.selected .slot-icon {
+            color: #f59e0b;
+        }
+
+        /* Task Card */
+        .task-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .task-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .task-badge {
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .task-badge.urgent {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+
+        .task-badge.nearby {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        /* Route Line */
+        .route-visual {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .route-line {
+            position: absolute;
+            left: 15px;
+            top: 24px;
+            bottom: 24px;
+            width: 2px;
+            background: linear-gradient(180deg, #10b981 0%, #f59e0b 100%);
+        }
+
+        .route-line::before,
+        .route-line::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .route-line::before {
+            top: -4px;
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .route-line::after {
+            bottom: -4px;
+            background: #f59e0b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+
+        .route-dots {
+            position: absolute;
+            left: 13px;
+            top: 30px;
+            bottom: 30px;
+            width: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        .route-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Stats Card */
+        .stat-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* Map Preview */
+        .mini-map {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .map-grid {
+            background: 
+                linear-gradient(rgba(245, 158, 11, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(245, 158, 11, 0.05) 1px, transparent 1px);
+            background-size: 25px 25px;
+        }
+
+        .map-route {
+            position: absolute;
+            top: 20%;
+            left: 15%;
+            width: 70%;
+            height: 60%;
+        }
+
+        .map-route svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .route-path {
+            fill: none;
+            stroke: url(#routeGradient);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 8 4;
+        }
+
+        .map-point {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .map-point-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-point-pickup {
+            top: 15%;
+            left: 10%;
+        }
+
+        .map-point-pickup .map-point-icon {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .map-point-drop {
+            bottom: 15%;
+            right: 10%;
+        }
+
+        .map-point-drop .map-point-icon {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .map-point-you {
+            top: 45%;
+            left: 35%;
+            animation: youPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes youPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .map-point-you .map-point-icon {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Success Animation */
+        .success-checkmark {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 20px 50px rgba(16, 185, 129, 0.3);
+            animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .checkmark-icon {
+            width: 45px;
+            height: 45px;
+            color: white;
+            animation: drawCheck 0.4s ease 0.3s forwards;
+            opacity: 0;
+        }
+
+        @keyframes drawCheck {
+            to { opacity: 1; }
+        }
+
+        /* View Transitions */
+        .view {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .view.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            position: absolute;
+            width: 100%;
+        }
+
+        .view.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Pulse Animation */
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid rgba(16, 185, 129, 0.4);
+            animation: pulseRing 2s ease-out infinite;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        /* Fade In */
+        .fade-in {
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Confetti */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            animation: confettiFall 3s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(400px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .availability-toggle {
+                height: 70px;
+            }
+
+            .toggle-slider {
+                width: 54px;
+                height: 54px;
+            }
+
+            .availability-toggle.on .toggle-slider {
+                left: calc(100% - 62px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-effects">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-4 lg:px-8 py-4 bg-[rgba(5,5,8,0.85)] backdrop-blur-xl border-b border-white/[0.06]">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center shadow-lg shadow-accent-500/25">
+                    <i data-lucide="heart-handshake" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="font-display text-xl font-bold">FoodBridge</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-8">
+                <a href="index.html" class="text-white/50 hover:text-accent-400 transition-colors text-sm font-medium">Home</a>
+                <a href="donate.html" class="text-white/50 hover:text-accent-400 transition-colors text-sm font-medium">Donate</a>
+                <a href="request.html" class="text-white/50 hover:text-accent-400 transition-colors text-sm font-medium">Request</a>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="#" class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.06] text-sm text-white/50">
+                    <i data-lucide="bike" class="w-4 h-4 text-accent-400"></i>
+                    <span>Volunteer Portal</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 pt-28 pb-16 px-4 lg:px-8 min-h-screen">
+        <div class="max-w-5xl mx-auto">
+
+            <!-- ========================================
+                 VIEW 1: REGISTRATION FORM
+                 ======================================== -->
+            <div id="registrationView" class="view visible">
+                <!-- Page Header -->
+                <div class="text-center mb-10 fade-in">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-500/10 border border-accent-500/20 mb-5">
+                        <i data-lucide="bike" class="w-4 h-4 text-accent-400"></i>
+                        <span class="text-sm text-accent-400">Join 2,500+ active volunteers</span>
+                    </div>
+                    <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">
+                        <span class="gradient-text">Join as a Volunteer</span>
+                    </h1>
+                    <p class="text-lg text-white/50 mb-6 max-w-xl mx-auto">
+                        Help deliver food to those who need it most
+                    </p>
+                    
+                    <!-- Emotional Highlight -->
+                    <div class="inline-block px-6 py-3 rounded-2xl bg-gradient-to-r from-accent-500/10 via-primary-500/10 to-purple-500/10 border border-white/[0.08]">
+                        <p class="text-lg font-medium">
+                            <span class="text-accent-400">❤️</span> 
+                            <span class="text-white/80">You're not just delivering food,</span> 
+                            <span class="gradient-text-green font-semibold">you're delivering relief.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- NSS College Section -->
+                <div class="glass-card p-6 md:p-8 mb-8 fade-in" style="border-color: rgba(139,92,246,0.25); position:relative; overflow:hidden;">
+                    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#8b5cf6,#a78bfa,#10b981);"></div>
+
+                    <!-- Header -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style="background:rgba(139,92,246,0.15);">🎓</div>
+                            <div>
+                                <h2 class="font-display text-xl font-bold">NSS College Volunteers</h2>
+                                <p class="text-sm text-white/50">Registered NSS units partnered with FoodBridge</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium" style="background:rgba(139,92,246,0.15);color:#a78bfa;">
+                            <div class="w-2 h-2 rounded-full animate-pulse" style="background:#8b5cf6;"></div>
+                            <span id="nssOnlineCount">24 Active Now</span>
+                        </div>
+                    </div>
+
+                    <!-- College Cards Grid -->
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" id="nssCollegeGrid">
+
+                        <!-- College 1 -->
+                        <div class="rounded-2xl p-4 transition-all hover:-translate-y-1" style="background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.2);">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white;">RV</div>
+                                <div>
+                                    <p class="font-semibold text-sm">RV College of Engineering</p>
+                                    <p class="text-xs text-white/40">Bangalore, Karnataka</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs mb-3">
+                                <span class="text-white/50">NSS Unit 42</span>
+                                <span style="color:#34d399;">● 8 online</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="px-2 py-1 rounded-full text-xs" style="background:rgba(16,185,129,0.15);color:#34d399;">🚲 Delivery</span>
+                                <span class="px-2 py-1 rounded-full text-xs" style="background:rgba(245,158,11,0.15);color:#fbbf24;">📦 Sorting</span>
+                            </div>
+                        </div>
+
+                        <!-- College 2 -->
+                        <div class="rounded-2xl p-4 transition-all hover:-translate-y-1" style="background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.2);">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;">BIT</div>
+                                <div>
+                                    <p class="font-semibold text-sm">BIT Mesra</p>
+                                    <p class="text-xs text-white/40">Ranchi, Jharkhand</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs mb-3">
+                                <span class="text-white/50">NSS Unit 17</span>
+                                <span style="color:#34d399;">● 5 online</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="px-2 py-1 rounded-full text-xs" style="background:rgba(16,185,129,0.15);color:#34d399;">🚲 Delivery</span>
+                                <span class="px-2 py-1 rounded-full text-xs" style="background:rgba(139,92,246,0.15);color:#a78bfa;">🤝 Outreach</span>
+                            </div>
+                        </div>
+
+                        <!-- College 3 -->
+                        <div class="rounded-2xl p-4 transition-all hover:-translate-y-1" style="background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.2);">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#10b981,#059669);color:white;">VIT</div>
+                                <div>
+                                    <p class="font-semibold text-sm">VIT University</p>
+                                    <p class="text-xs text-white/40">Vellore, Tamil Nadu</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs mb-3">
+                                <span class="text-white/50">NSS Unit 09</span>
+                                <span style="color:#34d399;">● 11 online</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="px-2 py-1 rounded-full text-xs" style="background:rgba(16,185,129,0.15);color:#34d399;">🚲 Delivery</span>
+                                <span class="px-2 py-1 rounded-full text-xs" style="background:rgba(245,158,11,0.15);color:#fbbf24;">📦 Sorting</span>
+                            </div>
+                        </div>
+
+                        <!-- College 4 -->
+                        <div class="rounded-2xl p-4 transition-all hover:-translate-y-1" style="background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.2);">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;">SRM</div>
+                                <div>
+                                    <p class="font-semibold text-sm">SRM Institute</p>
+                                    <p class="text-xs text-white/40">Chennai, Tamil Nadu</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs mb-3">
+                                <span class="text-white/50">NSS Unit 31</span>
+                                <span style="color:#fbbf24;">● 3 online</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="px-2 py-1 rounded-full text-xs" style="background:rgba(139,92,246,0.15);color:#a78bfa;">🤝 Outreach</span>
+                                <span class="px-2 py-1 rounded-full text-xs" style="background:rgba(245,158,11,0.15);color:#fbbf24;">📦 Sorting</span>
+                            </div>
+                        </div>
+
+                        <!-- College 5 -->
+                        <div class="rounded-2xl p-4 transition-all hover:-translate-y-1" style="background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.2);">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#ec4899,#db2777);color:white;">MU</div>
+                                <div>
+                                    <p class="font-semibold text-sm">Mumbai University</p>
+                                    <p class="text-xs text-white/40">Mumbai, Maharashtra</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs mb-3">
+                                <span class="text-white/50">NSS Unit 55</span>
+                                <span style="color:#34d399;">● 6 online</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="px-2 py-1 rounded-full text-xs" style="background:rgba(16,185,129,0.15);color:#34d399;">🚲 Delivery</span>
+                                <span class="px-2 py-1 rounded-full text-xs" style="background:rgba(139,92,246,0.15);color:#a78bfa;">🤝 Outreach</span>
+                            </div>
+                        </div>
+
+                        <!-- Register Your College CTA -->
+                        <div class="rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:-translate-y-1" style="background:rgba(139,92,246,0.06);border:2px dashed rgba(139,92,246,0.3);" onclick="document.getElementById('volunteerName').focus(); document.getElementById('volunteerName').scrollIntoView({behavior:'smooth'});">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2" style="background:rgba(139,92,246,0.15);">➕</div>
+                            <p class="font-semibold text-sm" style="color:#a78bfa;">Register Your College</p>
+                            <p class="text-xs text-white/40 mt-1">Join as NSS unit partner</p>
+                        </div>
+                    </div>
+
+                    <!-- Bottom stats bar -->
+                    <div class="grid grid-cols-3 gap-4 pt-4" style="border-top:1px solid rgba(255,255,255,0.06);">
+                        <div class="text-center">
+                            <p class="font-display text-2xl font-bold" style="color:#a78bfa;">5</p>
+                            <p class="text-xs text-white/40">Colleges Partnered</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="font-display text-2xl font-bold" style="color:#34d399;">33+</p>
+                            <p class="text-xs text-white/40">NSS Volunteers Active</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="font-display text-2xl font-bold" style="color:#fbbf24;">480+</p>
+                            <p class="text-xs text-white/40">Meals Delivered by NSS</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid lg:grid-cols-5 gap-8">
+                    <!-- Registration Form (Left - 3 cols) -->
+                    <div class="lg:col-span-3">
+                        <form id="volunteerForm" class="glass-card p-6 md:p-8">
+                            <h2 class="flex items-center gap-3 text-xl font-semibold mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-accent-500/15 flex items-center justify-center">
+                                    <i data-lucide="user-plus" class="w-5 h-5 text-accent-400"></i>
+                                </div>
+                                Personal Information
+                            </h2>
+
+                            <!-- Name -->
+                            <div class="mb-5">
+                                <label class="block text-sm font-medium text-white/60 mb-2">
+                                    Full Name <span class="text-red-400">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="volunteerName"
+                                    class="glass-input w-full px-4 py-3.5"
+                                    placeholder="Enter your full name"
+                                    required
+                                >
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div class="mb-5">
+                                <label class="block text-sm font-medium text-white/60 mb-2">
+                                    Phone Number <span class="text-red-400">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input 
+                                        type="tel" 
+                                        id="volunteerPhone"
+                                        class="glass-input w-full px-4 py-3.5 pr-32"
+                                        placeholder="+91 98765 43210"
+                                        required
+                                    >
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-xs text-green-400 bg-green-500/10 px-2 py-1 rounded-full">
+                                        <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                        WhatsApp
+                                    </span>
+                                </div>
+                                <p class="text-xs text-white/40 mt-2">
+                                    <i data-lucide="info" class="w-3 h-3 inline mr-1"></i>
+                                    You'll receive task notifications via WhatsApp
+                                </p>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-white/60 mb-2">
+                                    Email Address <span class="text-white/30">(Optional)</span>
+                                </label>
+                                <input 
+                                    type="email" 
+                                    id="volunteerEmail"
+                                    class="glass-input w-full px-4 py-3.5"
+                                    placeholder="your@email.com"
+                                >
+                            </div>
+
+                            <hr class="border-white/[0.06] my-6">
+
+                            <!-- Location Section -->
+                            <h2 class="flex items-center gap-3 text-xl font-semibold mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-primary-500/15 flex items-center justify-center">
+                                    <i data-lucide="map-pin" class="w-5 h-5 text-primary-400"></i>
+                                </div>
+                                Your Location
+                            </h2>
+
+                            <div class="mb-5">
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        id="volunteerLocation"
+                                        class="glass-input w-full px-4 py-3.5 pr-36"
+                                        placeholder="Your area/neighborhood"
+                                        required
+                                    >
+                                    <button 
+                                        type="button" 
+                                        id="detectLocationBtn"
+                                        class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 px-3 py-2 rounded-xl bg-accent-500/15 text-accent-400 text-sm font-medium hover:bg-accent-500/25 transition-all"
+                                        onclick="detectLocation()"
+                                    >
+                                        <i data-lucide="locate" class="w-4 h-4"></i>
+                                        <span class="hidden sm:inline">Auto Detect</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Mini Map Preview -->
+                            <div class="mini-map h-36 map-grid mb-6 relative" id="locationMapPreview">
+                                <div class="absolute inset-0 flex items-center justify-center" id="mapPlaceholder">
+                                    <div class="text-center">
+                                        <i data-lucide="map" class="w-8 h-8 text-white/15 mx-auto mb-2"></i>
+                                        <p class="text-xs text-white/30">Location preview</p>
+                                    </div>
+                                </div>
+                                <div class="map-point map-point-you hidden" id="youMarker">
+                                    <div class="map-point-icon relative">
+                                        <div class="pulse-ring"></div>
+                                        <i data-lucide="user" class="w-5 h-5 text-white relative z-10"></i>
+                                    </div>
+                                    <span class="text-xs text-white/70 mt-1 bg-black/50 px-2 py-0.5 rounded">You</span>
+                                </div>
+                            </div>
+
+                            <hr class="border-white/[0.06] my-6">
+
+                            <!-- Availability Section -->
+                            <h2 class="flex items-center gap-3 text-xl font-semibold mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-purple-500/15 flex items-center justify-center">
+                                    <i data-lucide="clock" class="w-5 h-5 text-purple-400"></i>
+                                </div>
+                                Availability
+                            </h2>
+
+                            <!-- Available Now Toggle -->
+                            <div class="flex items-center justify-between mb-5 p-4 rounded-xl bg-black/20 border border-white/[0.06]">
+                                <div>
+                                    <p class="font-medium mb-1">Available Now</p>
+                                    <p class="text-sm text-white/40">Get matched with tasks immediately</p>
+                                </div>
+                                <div class="toggle-switch active" id="availableNowToggle" onclick="toggleAvailableNow()">
+                                    <div class="toggle-knob"></div>
+                                </div>
+                            </div>
+
+                            <!-- Time Slots -->
+                            <p class="text-sm text-white/50 mb-3">Preferred Time Slots</p>
+                            <div class="grid grid-cols-3 gap-3 mb-6">
+                                <div class="time-slot selected" onclick="toggleTimeSlot(this)" data-slot="morning">
+                                    <span class="text-xl mb-1 block">🌅</span>
+                                    <span class="text-sm font-medium">Morning</span>
+                                    <span class="text-xs text-white/40 block">6am - 12pm</span>
+                                </div>
+                                <div class="time-slot" onclick="toggleTimeSlot(this)" data-slot="afternoon">
+                                    <span class="text-xl mb-1 block">☀️</span>
+                                    <span class="text-sm font-medium">Afternoon</span>
+                                    <span class="text-xs text-white/40 block">12pm - 6pm</span>
+                                </div>
+                                <div class="time-slot" onclick="toggleTimeSlot(this)" data-slot="evening">
+                                    <span class="text-xl mb-1 block">🌙</span>
+                                    <span class="text-sm font-medium">Evening</span>
+                                    <span class="text-xs text-white/40 block">6pm - 10pm</span>
+                                </div>
+                            </div>
+
+                            <!-- Vehicle Type -->
+                            <p class="text-sm text-white/50 mb-3">Mode of Transport</p>
+                            <div class="grid grid-cols-4 gap-3 mb-6">
+                                <div class="time-slot selected" onclick="selectVehicle(this)" data-vehicle="bike">
+                                    <span class="text-xl mb-1 block">🚲</span>
+                                    <span class="text-xs font-medium">Bicycle</span>
+                                </div>
+                                <div class="time-slot" onclick="selectVehicle(this)" data-vehicle="motorcycle">
+                                    <span class="text-xl mb-1 block">🏍️</span>
+                                    <span class="text-xs font-medium">Motorcycle</span>
+                                </div>
+                                <div class="time-slot" onclick="selectVehicle(this)" data-vehicle="car">
+                                    <span class="text-xl mb-1 block">🚗</span>
+                                    <span class="text-xs font-medium">Car</span>
+                                </div>
+                                <div class="time-slot" onclick="selectVehicle(this)" data-vehicle="walk">
+                                    <span class="text-xl mb-1 block">🚶</span>
+                                    <span class="text-xs font-medium">Walking</span>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button 
+                                type="submit" 
+                                id="submitBtn"
+                                class="btn-primary w-full py-4 rounded-2xl text-white font-semibold text-lg flex items-center justify-center gap-3"
+                            >
+                                <i data-lucide="rocket" class="w-5 h-5"></i>
+                                <span>Start Volunteering</span>
+                            </button>
+
+                            <p class="text-center text-sm text-white/30 mt-4">
+                                By joining, you agree to our <a href="#" class="text-accent-400 hover:underline">Volunteer Guidelines</a>
+                            </p>
+                        </form>
+                    </div>
+
+                    <!-- Preview Section (Right - 2 cols) -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Example Task Card -->
+                        <div class="glass-card p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="flex items-center gap-2 font-semibold">
+                                    <i data-lucide="package" class="w-5 h-5 text-accent-400"></i>
+                                    Example Task
+                                </h3>
+                                <span class="text-xs text-white/40">What you'll see</span>
+                            </div>
+
+                            <div class="task-card">
+                                <!-- Task Header -->
+                                <div class="p-4 border-b border-white/[0.06]">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex gap-2">
+                                            <span class="task-badge urgent">⚡ Urgent</span>
+                                            <span class="task-badge nearby">📍 Nearby</span>
+                                        </div>
+                                        <span class="text-sm text-white/50">ID: #FB-4521</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2 py-1 rounded-lg bg-green-500/15 text-green-400 text-xs font-medium">🥬 Veg</span>
+                                        <span class="text-sm text-white/60">Dal Rice + Roti</span>
+                                    </div>
+                                </div>
+
+                                <!-- Route Visual -->
+                                <div class="p-4">
+                                    <div class="route-visual">
+                                        <div class="route-line">
+                                            <div class="route-dots">
+                                                <div class="route-dot"></div>
+                                                <div class="route-dot"></div>
+                                                <div class="route-dot"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Pickup -->
+                                        <div class="mb-6">
+                                            <p class="text-xs text-primary-400 font-medium mb-1">PICKUP</p>
+                                            <p class="font-medium">Taj Restaurant, MG Road</p>
+                                            <p class="text-sm text-white/50">1.2 km away</p>
+                                        </div>
+
+                                        <!-- Drop -->
+                                        <div>
+                                            <p class="text-xs text-accent-400 font-medium mb-1">DROP</p>
+                                            <p class="font-medium">Hope Shelter, Indiranagar</p>
+                                            <p class="text-sm text-white/50">2.0 km from pickup</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Task Footer -->
+                                <div class="p-4 bg-black/20 flex items-center justify-between">
+                                    <div class="flex items-center gap-4">
+                                        <div class="text-center">
+                                            <p class="text-lg font-semibold text-white">5</p>
+                                            <p class="text-xs text-white/40">People</p>
+                                        </div>
+                                        <div class="w-px h-8 bg-white/10"></div>
+                                        <div class="text-center">
+                                            <p class="text-lg font-semibold text-accent-400">45m</p>
+                                            <p class="text-xs text-white/40">Time Left</p>
+                                        </div>
+                                    </div>
+                                    <button class="px-4 py-2 rounded-xl bg-primary-500/20 text-primary-400 text-sm font-semibold hover:bg-primary-500/30 transition-all">
+                                        Accept Task
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Mini Map -->
+                            <div class="mini-map h-32 map-grid mt-4 relative">
+                                <svg class="absolute inset-0 w-full h-full" viewBox="0 0 200 100" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" style="stop-color:#10b981"/>
+                                            <stop offset="100%" style="stop-color:#f59e0b"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <path class="route-path" d="M 30,30 Q 80,60 100,50 T 170,70"/>
+                                </svg>
+                                <div class="map-point map-point-pickup">
+                                    <div class="map-point-icon">
+                                        <i data-lucide="package" class="w-4 h-4 text-white"></i>
+                                    </div>
+                                </div>
+                                <div class="map-point map-point-drop">
+                                    <div class="map-point-icon">
+                                        <i data-lucide="home" class="w-4 h-4 text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dashboard Preview -->
+                        <div class="glass-card p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="flex items-center gap-2 font-semibold">
+                                    <i data-lucide="layout-dashboard" class="w-5 h-5 text-purple-400"></i>
+                                    Your Dashboard
+                                </h3>
+                                <span class="text-xs text-white/40">Preview</span>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="stat-card">
+                                    <div class="stat-icon bg-accent-500/15">
+                                        <i data-lucide="clipboard-list" class="w-5 h-5 text-accent-400"></i>
+                                    </div>
+                                    <p class="stat-value text-accent-400">0</p>
+                                    <p class="text-xs text-white/50">Tasks Assigned</p>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon bg-primary-500/15">
+                                        <i data-lucide="check-circle" class="w-5 h-5 text-primary-400"></i>
+                                    </div>
+                                    <p class="stat-value text-primary-400">0</p>
+                                    <p class="text-xs text-white/50">Completed</p>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon bg-purple-500/15">
+                                        <i data-lucide="users" class="w-5 h-5 text-purple-400"></i>
+                                    </div>
+                                    <p class="stat-value text-purple-400">0</p>
+                                    <p class="text-xs text-white/50">People Helped</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 p-3 rounded-xl bg-gradient-to-r from-accent-500/10 to-primary-500/10 border border-white/[0.06] text-center">
+                                <p class="text-sm text-white/70">
+                                    🎯 Complete your first delivery to unlock badges!
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Benefits Card -->
+                        <div class="glass-card-light p-5">
+                            <h3 class="flex items-center gap-2 font-semibold mb-4">
+                                <i data-lucide="gift" class="w-5 h-5 text-pink-400"></i>
+                                Volunteer Perks
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-primary-500/15 flex items-center justify-center text-primary-400">
+                                        <i data-lucide="award" class="w-4 h-4"></i>
+                                    </div>
+                                    <span class="text-sm text-white/70">Earn badges & recognition</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-accent-500/15 flex items-center justify-center text-accent-400">
+                                        <i data-lucide="certificate" class="w-4 h-4"></i>
+                                    </div>
+                                    <span class="text-sm text-white/70">Get volunteer certificate</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center text-purple-400">
+                                        <i data-lucide="users" class="w-4 h-4"></i>
+                                    </div>
+                                    <span class="text-sm text-white/70">Join community events</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 VIEW 2: VOLUNTEER DASHBOARD (Post-Join)
+                 ======================================== -->
+            <div id="dashboardView" class="view hidden">
+                <!-- Success Header -->
+                <div class="text-center mb-10 fade-in">
+                    <div class="success-checkmark">
+                        <i data-lucide="check" class="checkmark-icon"></i>
+                    </div>
+                    <h1 class="font-display text-3xl md:text-4xl font-bold mb-3">
+                        You're Now a <span class="gradient-text">FoodBridge Volunteer</span> 🚀
+                    </h1>
+                    <p class="text-lg text-white/50">
+                        Welcome to the team! You're ready to make a difference.
+                    </p>
+                </div>
+
+                <!-- Confetti Container -->
+                <div id="confettiContainer" class="fixed inset-0 pointer-events-none z-50 overflow-hidden"></div>
+
+                <!-- Big Availability Toggle -->
+                <div class="glass-card p-6 md:p-8 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-xl font-semibold mb-1">Availability Status</h2>
+                            <p class="text-white/50" id="availabilityStatus">You're available for pickups</p>
+                        </div>
+                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-500/15 text-primary-400 text-sm font-medium" id="statusBadge">
+                            <div class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></div>
+                            Online
+                        </div>
+                    </div>
+
+                    <div class="availability-toggle on" id="bigAvailabilityToggle" onclick="toggleBigAvailability()">
+                        <div class="toggle-slider">
+                            <i data-lucide="bike"></i>
+                        </div>
+                        <span class="toggle-text">Available for Pickup</span>
+                    </div>
+
+                    <p class="text-center text-sm text-white/40 mt-4">
+                        Toggle OFF when you're busy or unavailable
+                    </p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-accent-500/15">
+                            <i data-lucide="clipboard-list" class="w-6 h-6 text-accent-400"></i>
+                        </div>
+                        <p class="stat-value text-accent-400">0</p>
+                        <p class="text-sm text-white/50">Tasks Assigned</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-primary-500/15">
+                            <i data-lucide="check-circle" class="w-6 h-6 text-primary-400"></i>
+                        </div>
+                        <p class="stat-value text-primary-400">0</p>
+                        <p class="text-sm text-white/50">Completed</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-purple-500/15">
+                            <i data-lucide="users" class="w-6 h-6 text-purple-400"></i>
+                        </div>
+                        <p class="stat-value text-purple-400">0</p>
+                        <p class="text-sm text-white/50">People Helped</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-pink-500/15">
+                            <i data-lucide="star" class="w-6 h-6 text-pink-400"></i>
+                        </div>
+                        <p class="stat-value text-pink-400">-</p>
+                        <p class="text-sm text-white/50">Rating</p>
+                    </div>
+                </div>
+
+                <!-- Pending Tasks Section -->
+                <div class="glass-card p-6 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="flex items-center gap-2 text-xl font-semibold">
+                            <i data-lucide="list-todo" class="w-5 h-5 text-accent-400"></i>
+                            Available Tasks Nearby
+                        </h2>
+                        <button class="text-sm text-accent-400 hover:text-accent-300 transition-colors">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-1"></i>
+                            Refresh
+                        </button>
+                    </div>
+
+                    <!-- Task List -->
+                    <div class="space-y-4" id="taskList">
+                        <!-- Task 1 -->
+                        <div class="task-card">
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex gap-2">
+                                        <span class="task-badge urgent">⚡ Urgent</span>
+                                        <span class="task-badge nearby">📍 1.2 km</span>
+                                    </div>
+                                    <span class="text-xs text-white/50">#FB-4521</span>
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-8 h-8 rounded-lg bg-green-500/15 flex items-center justify-center text-lg">🥬</span>
+                                            <div>
+                                                <p class="font-medium">Dal Rice + Roti</p>
+                                                <p class="text-xs text-white/50">Serves 5 people</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-right">
+                                            <p class="text-lg font-semibold text-accent-400">32 min</p>
+                                            <p class="text-xs text-white/40">Expires in</p>
+                                        </div>
+                                        <button class="px-4 py-2.5 rounded-xl bg-primary-500 text-white text-sm font-semibold hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/25">
+                                            Accept
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Task 2 -->
+                        <div class="task-card">
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex gap-2">
+                                        <span class="task-badge nearby">📍 2.5 km</span>
+                                    </div>
+                                    <span class="text-xs text-white/50">#FB-4520</span>
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-8 h-8 rounded-lg bg-red-500/15 flex items-center justify-center text-lg">🍖</span>
+                                            <div>
+                                                <p class="font-medium">Chicken Biryani</p>
+                                                <p class="text-xs text-white/50">Serves 8 people</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-right">
+                                            <p class="text-lg font-semibold text-primary-400">1h 15m</p>
+                                            <p class="text-xs text-white/40">Expires in</p>
+                                        </div>
+                                        <button class="px-4 py-2.5 rounded-xl bg-primary-500 text-white text-sm font-semibold hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/25">
+                                            Accept
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Task 3 -->
+                        <div class="task-card">
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex gap-2">
+                                        <span class="task-badge nearby">📍 3.1 km</span>
+                                    </div>
+                                    <span class="text-xs text-white/50">#FB-4519</span>
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-8 h-8 rounded-lg bg-green-500/15 flex items-center justify-center text-lg">🥬</span>
+                                            <div>
+                                                <p class="font-medium">Packed Meals (Mixed)</p>
+                                                <p class="text-xs text-white/50">Serves 15 people</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-right">
+                                            <p class="text-lg font-semibold text-primary-400">2h 30m</p>
+                                            <p class="text-xs text-white/40">Expires in</p>
+                                        </div>
+                                        <button class="px-4 py-2.5 rounded-xl bg-primary-500 text-white text-sm font-semibold hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/25">
+                                            Accept
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State (hidden by default) -->
+                    <div class="text-center py-12 hidden" id="noTasksState">
+                        <div class="w-16 h-16 rounded-2xl bg-white/[0.03] flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="inbox" class="w-8 h-8 text-white/20"></i>
+                        </div>
+                        <p class="text-white/50 mb-2">No tasks available right now</p>
+                        <p class="text-sm text-white/30">New tasks will appear here when donors post food</p>
+                    </div>
+                </div>
+
+                <!-- WhatsApp Info -->
+                <div class="glass-card-light p-5 flex items-center gap-4 mb-8">
+                    <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="message-circle" class="w-6 h-6 text-green-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium mb-1">WhatsApp Notifications Enabled</p>
+                        <p class="text-sm text-white/50">You'll receive instant alerts for new tasks nearby</p>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-full bg-green-500/15 text-green-400 text-sm font-medium">Active</span>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid sm:grid-cols-3 gap-4">
+                    <button class="btn-secondary p-4 rounded-xl flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-accent-500/15 flex items-center justify-center">
+                            <i data-lucide="history" class="w-5 h-5 text-accent-400"></i>
+                        </div>
+                        <span class="font-medium">View History</span>
+                    </button>
+                    <button class="btn-secondary p-4 rounded-xl flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-primary-500/15 flex items-center justify-center">
+                            <i data-lucide="map" class="w-5 h-5 text-primary-400"></i>
+                        </div>
+                        <span class="font-medium">Open Map</span>
+                    </button>
+                    <button class="btn-secondary p-4 rounded-xl flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/15 flex items-center justify-center">
+                            <i data-lucide="settings" class="w-5 h-5 text-purple-400"></i>
+                        </div>
+                        <span class="font-medium">Settings</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // ========================================
+        // TOGGLE FUNCTIONS
+        // ========================================
+        function toggleAvailableNow() {
+            const toggle = document.getElementById('availableNowToggle');
+            toggle.classList.toggle('active');
+        }
+
+        function toggleTimeSlot(element) {
+            element.classList.toggle('selected');
+        }
+
+        function selectVehicle(element) {
+            document.querySelectorAll('[data-vehicle]').forEach(el => {
+                el.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        // ========================================
+        // LOCATION DETECTION
+        // ========================================
+        function detectLocation() {
+            const btn = document.getElementById('detectLocationBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div>';
+            btn.disabled = true;
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        setTimeout(() => {
+                            const mockLocation = "Koramangala, Bangalore - 560034";
+                            document.getElementById('volunteerLocation').value = mockLocation;
+                            
+                            // Show marker
+                            document.getElementById('mapPlaceholder').classList.add('hidden');
+                            document.getElementById('youMarker').classList.remove('hidden');
+
+                            btn.innerHTML = originalHTML;
+                            btn.disabled = false;
+                            lucide.createIcons();
+                        }, 1500);
+                    },
+                    (error) => {
+                        alert('Could not detect location. Please enter manually.');
+                        btn.innerHTML = originalHTML;
+                        btn.disabled = false;
+                        lucide.createIcons();
+                    }
+                );
+            } else {
+                alert('Geolocation not supported.');
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+
+        // ========================================
+        // FORM SUBMISSION
+        // ========================================
+        document.getElementById('volunteerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Validate required fields
+            const name = document.getElementById('volunteerName').value.trim();
+            const phone = document.getElementById('volunteerPhone').value.trim();
+            const location = document.getElementById('volunteerLocation').value.trim();
+
+            if (!name || !phone || !location) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner"></div><span>Joining...</span>';
+
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Switch to dashboard view
+            document.getElementById('registrationView').classList.add('hidden');
+            document.getElementById('registrationView').classList.remove('visible');
+            document.getElementById('dashboardView').classList.remove('hidden');
+            document.getElementById('dashboardView').classList.add('visible');
+
+            // Trigger confetti
+            createConfetti();
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Reset button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i data-lucide="rocket" class="w-5 h-5"></i><span>Start Volunteering</span>';
+            lucide.createIcons();
+        });
+
+        // ========================================
+        // BIG AVAILABILITY TOGGLE
+        // ========================================
+        function toggleBigAvailability() {
+            const toggle = document.getElementById('bigAvailabilityToggle');
+            const statusText = document.getElementById('availabilityStatus');
+            const statusBadge = document.getElementById('statusBadge');
+
+            toggle.classList.toggle('on');
+            toggle.classList.toggle('off');
+
+            if (toggle.classList.contains('on')) {
+                statusText.textContent = "You're available for pickups";
+                statusBadge.innerHTML = '<div class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></div> Online';
+                statusBadge.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-500/15 text-primary-400 text-sm font-medium';
+                toggle.querySelector('.toggle-text').textContent = 'Available for Pickup';
+            } else {
+                statusText.textContent = "You're currently offline";
+                statusBadge.innerHTML = '<div class="w-2 h-2 rounded-full bg-white/30"></div> Offline';
+                statusBadge.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-white/50 text-sm font-medium';
+                toggle.querySelector('.toggle-text').textContent = 'Go Online';
+            }
+        }
+
+        // ========================================
+        // CONFETTI ANIMATION
+        // ========================================
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#10b981', '#34d399', '#f59e0b', '#fbbf24', '#8b5cf6', '#a78bfa', '#ec4899'];
+
+            for (let i = 0; i < 80; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    container.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 25);
+            }
+        }
+
+        // ========================================
+        // LOCATION INPUT HANDLER
+        // ========================================
+        document.getElementById('volunteerLocation').addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.getElementById('mapPlaceholder').classList.add('hidden');
+                document.getElementById('youMarker').classList.remove('hidden');
+            } else {
+                document.getElementById('mapPlaceholder').classList.remove('hidden');
+                document.getElementById('youMarker').classList.add('hidden');
+            }
+        });
+
+        // ========================================
+        // INITIALIZE
+        // ========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Any initialization code
+        });
+    </script>
+</body>
+</html>

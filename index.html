@@ -1,0 +1,2529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodBridge - No Meal Should Go to Waste</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-light: #34d399;
+            --primary-dark: #059669;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --accent: #f59e0b;
+            --accent-light: #fbbf24;
+            --accent-glow: rgba(245, 158, 11, 0.4);
+            --purple: #8b5cf6;
+            --purple-light: #a78bfa;
+            --purple-glow: rgba(139, 92, 246, 0.4);
+            --blue: #3b82f6;
+            --blue-glow: rgba(59, 130, 246, 0.4);
+            --red: #ef4444;
+            --red-glow: rgba(239, 68, 68, 0.4);
+            
+            --bg-dark: #050508;
+            --bg-darker: #020203;
+            --bg-card: rgba(255, 255, 255, 0.02);
+            --bg-card-hover: rgba(255, 255, 255, 0.05);
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-light: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border-light: rgba(255, 255, 255, 0.12);
+            --glass-border-active: rgba(255, 255, 255, 0.2);
+            
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            
+            --gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-accent: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            --gradient-hero: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(245, 158, 11, 0.1) 50%, rgba(139, 92, 246, 0.1) 100%);
+            
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
+            --shadow-glow-primary: 0 0 60px rgba(16, 185, 129, 0.3);
+            --shadow-glow-accent: 0 0 60px rgba(245, 158, 11, 0.3);
+            
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 36px;
+            
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-darker);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--glass-border-light);
+        }
+
+        /* Background Effects */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+        }
+
+        .bg-orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+            top: -200px;
+            right: -100px;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+
+        .bg-orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+            bottom: -150px;
+            left: -100px;
+            animation: orbFloat 25s ease-in-out infinite reverse;
+        }
+
+        .bg-orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+            top: 40%;
+            left: 30%;
+            animation: orbPulse 15s ease-in-out infinite;
+        }
+
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 80px 80px;
+        }
+
+        .bg-noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        @keyframes orbPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            background: rgba(5, 5, 8, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--gradient-primary);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-glow-primary);
+        }
+
+        .logo-icon i {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color var(--transition-normal);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width var(--transition-normal);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-light);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .open-source-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            transition: all var(--transition-normal);
+        }
+
+        .open-source-badge:hover {
+            border-color: var(--glass-border-light);
+            background: var(--glass-light);
+        }
+
+        .open-source-badge i {
+            width: 16px;
+            height: 16px;
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all var(--transition-normal);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-menu-btn i {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            padding: 8rem 2rem 6rem;
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Badge */
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 0.6rem 1.25rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .hero-badge .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Headline */
+        .hero-headline {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.1s both;
+        }
+
+        .hero-headline .line {
+            display: block;
+        }
+
+        .hero-headline .highlight {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subheading {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* People Fed Counter - Premium Design */
+        .counter-section {
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+
+        .counter-card {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem 4rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .counter-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent);
+        }
+
+        .counter-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            height: 200px;
+            background: var(--gradient-hero);
+            filter: blur(80px);
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .counter-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 0.75rem;
+        }
+
+        .counter-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3.5rem, 8vw, 5.5rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 40%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+        }
+
+        .counter-value .plus {
+            font-size: 0.4em;
+            opacity: 0.8;
+        }
+
+        .counter-label-bottom {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .counter-label-bottom i {
+            width: 20px;
+            height: 20px;
+            color: var(--primary);
+        }
+
+        /* CTA Buttons */
+        .hero-cta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn i {
+            width: 20px;
+            height: 20px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: var(--glass-light);
+            border-color: var(--glass-border-light);
+            transform: translateY(-3px);
+        }
+
+        .btn-tertiary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-tertiary:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: color var(--transition-normal);
+        }
+
+        .scroll-indicator:hover {
+            color: var(--text-secondary);
+        }
+
+        .scroll-mouse {
+            width: 28px;
+            height: 44px;
+            border: 2px solid var(--glass-border-light);
+            border-radius: 14px;
+            position: relative;
+        }
+
+        .scroll-wheel {
+            width: 4px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 2px;
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: scrollWheel 2s infinite;
+        }
+
+        @keyframes scrollWheel {
+            0%, 100% { opacity: 1; top: 8px; }
+            50% { opacity: 0.3; top: 20px; }
+        }
+
+        /* ========================================
+           SHOWCASE SECTION - BENTO GRID
+           ======================================== */
+        .showcase-section {
+            position: relative;
+            z-index: 1;
+            padding: 4rem 2rem 8rem;
+        }
+
+        .showcase-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .showcase-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .showcase-label {
+            font-size: 0.85rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .showcase-label::before,
+        .showcase-label::after {
+            content: '';
+            width: 40px;
+            height: 1px;
+            background: var(--glass-border-light);
+        }
+
+        .showcase-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .showcase-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Bento Grid Layout */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: auto;
+            gap: 1.5rem;
+        }
+
+        /* Bento Card Base Styles */
+        .bento-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .bento-card:hover {
+            border-color: var(--glass-border-light);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .bento-card-content {
+            padding: 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bento-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .bento-card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .bento-card-title .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bento-card-title .icon i {
+            width: 20px;
+            height: 20px;
+        }
+
+        .bento-card-title .icon.green {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--primary);
+        }
+
+        .bento-card-title .icon.orange {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent);
+        }
+
+        .bento-card-title .icon.purple {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+        }
+
+        .bento-card-title .icon.blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--blue);
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            color: var(--primary);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+        }
+
+        .live-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        /* ========================================
+           CARD 1: SYSTEM FLOW (Large - Full Width)
+           ======================================== */
+        .bento-flow {
+            grid-column: span 12;
+        }
+
+        .bento-flow .bento-card-content {
+            padding: 3rem;
+        }
+
+        .flow-visualization {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .flow-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        /* Flow Connection Line */
+        .flow-connection {
+            position: absolute;
+            top: 50%;
+            left: 80px;
+            right: 80px;
+            height: 4px;
+            background: var(--glass-border);
+            border-radius: 2px;
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+
+        .flow-connection-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+            width: 0%;
+            animation: flowProgressAnim 4s ease-in-out infinite;
+        }
+
+        @keyframes flowProgressAnim {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* Flow Particle */
+        .flow-particle {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            top: 50%;
+            left: 80px;
+            transform: translateY(-50%);
+            animation: particleFlow 4s ease-in-out infinite;
+            box-shadow: 0 0 30px var(--primary-glow), 0 0 60px var(--primary-glow);
+            z-index: 2;
+        }
+
+        @keyframes particleFlow {
+            0% { left: 80px; }
+            100% { left: calc(100% - 96px); }
+        }
+
+        /* Flow Nodes */
+        .flow-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1;
+            position: relative;
+        }
+
+        .flow-node-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            background: var(--bg-dark);
+            border: 2px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+        .flow-node-icon i {
+            width: 32px;
+            height: 32px;
+            color: var(--text-muted);
+            transition: color var(--transition-normal);
+        }
+
+        .flow-node-icon.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 40px var(--primary-glow);
+        }
+
+        .flow-node-icon.active i {
+            color: var(--primary);
+        }
+
+        .flow-node-icon.active-orange {
+            border-color: var(--accent);
+            box-shadow: 0 0 40px var(--accent-glow);
+        }
+
+        .flow-node-icon.active-orange i {
+            color: var(--accent);
+        }
+
+        .flow-node-icon.active-purple {
+            border-color: var(--purple);
+            box-shadow: 0 0 40px var(--purple-glow);
+        }
+
+        .flow-node-icon.active-purple i {
+            color: var(--purple);
+        }
+
+        .flow-node-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .flow-node-status {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+        }
+
+        .flow-node-status i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .flow-node-status.pending {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+        }
+
+        /* Progress Steps */
+        .flow-progress {
+            margin-top: 3rem;
+            padding: 1.5rem 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-md);
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .progress-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-title i {
+            width: 18px;
+            height: 18px;
+            color: var(--primary);
+        }
+
+        .progress-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 40px;
+            right: 40px;
+            height: 4px;
+            background: var(--glass-border);
+            border-radius: 2px;
+        }
+
+        .progress-line-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+            width: 66%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1;
+        }
+
+        .step-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-dark);
+            border: 3px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-normal);
+        }
+
+        .step-indicator i {
+            width: 16px;
+            height: 16px;
+            color: white;
+            opacity: 0;
+        }
+
+        .step-indicator.completed {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .step-indicator.completed i {
+            opacity: 1;
+        }
+
+        .step-indicator.current {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+            animation: stepPulseAnim 2s infinite;
+        }
+
+        @keyframes stepPulseAnim {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2); }
+            50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: color var(--transition-normal);
+        }
+
+        .step-label.active {
+            color: var(--text-primary);
+        }
+
+        /* ========================================
+           CARD 2: SMART MAP (Medium)
+           ======================================== */
+        .bento-map {
+            grid-column: span 7;
+        }
+
+        .map-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .map-visual {
+            flex: 1;
+            min-height: 200px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: var(--radius-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.08) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .map-route {
+            position: absolute;
+            top: 25%;
+            left: 15%;
+            width: 70%;
+            height: 50%;
+        }
+
+        .map-route svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .route-path {
+            fill: none;
+            stroke: var(--glass-border-light);
+            stroke-width: 3;
+            stroke-dasharray: 8 4;
+        }
+
+        .route-path-active {
+            fill: none;
+            stroke: url(#routeGradient);
+            stroke-width: 3;
+            stroke-dasharray: 500;
+            stroke-dashoffset: 500;
+            animation: routeDraw 4s ease-in-out infinite;
+        }
+
+        @keyframes routeDraw {
+            0% { stroke-dashoffset: 500; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .map-point {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .map-point-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .map-point-icon i {
+            width: 22px;
+            height: 22px;
+            color: white;
+            z-index: 1;
+        }
+
+        .map-point-icon::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: mapPointPulse 2s infinite;
+        }
+
+        @keyframes mapPointPulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .map-point-donor {
+            top: 15%;
+            left: 10%;
+        }
+
+        .map-point-donor .map-point-icon {
+            background: var(--gradient-primary);
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+
+        .map-point-donor .map-point-icon::before {
+            background: var(--primary);
+        }
+
+        .map-point-volunteer {
+            top: 45%;
+            left: 45%;
+            animation: volunteerMovement 4s ease-in-out infinite;
+        }
+
+        @keyframes volunteerMovement {
+            0%, 100% { top: 45%; left: 35%; }
+            50% { top: 55%; left: 55%; }
+        }
+
+        .map-point-volunteer .map-point-icon {
+            background: var(--gradient-accent);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .map-point-volunteer .map-point-icon::before {
+            background: var(--accent);
+        }
+
+        .map-point-receiver {
+            bottom: 15%;
+            right: 10%;
+        }
+
+        .map-point-receiver .map-point-icon {
+            background: var(--gradient-purple);
+            box-shadow: 0 4px 20px var(--purple-glow);
+        }
+
+        .map-point-receiver .map-point-icon::before {
+            background: var(--purple);
+        }
+
+        .map-point-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Map Stats */
+        .map-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .map-stat {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .map-stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .map-stat-value.green { color: var(--primary); }
+        .map-stat-value.orange { color: var(--accent); }
+        .map-stat-value.red { color: var(--red); }
+
+        .map-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .map-note {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+
+        .map-note i {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        /* ========================================
+           CARD 3: WHATSAPP (Small)
+           ======================================== */
+        .bento-whatsapp {
+            grid-column: span 5;
+        }
+
+        .whatsapp-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .whatsapp-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 1.25rem;
+        }
+
+        .whatsapp-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .whatsapp-avatar i {
+            width: 26px;
+            height: 26px;
+            color: white;
+        }
+
+        .whatsapp-info {
+            flex: 1;
+        }
+
+        .whatsapp-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .whatsapp-status {
+            font-size: 0.8rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .whatsapp-status .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .whatsapp-messages {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            overflow: hidden;
+        }
+
+        .wa-msg {
+            max-width: 90%;
+            padding: 0.9rem 1.1rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            position: relative;
+            animation: msgSlide 0.4s ease;
+        }
+
+        @keyframes msgSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .wa-msg-bot {
+            background: rgba(0, 0, 0, 0.4);
+            border-top-left-radius: 4px;
+            align-self: flex-start;
+        }
+
+        .wa-msg-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .wa-msg-icon i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .wa-msg-icon.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--primary);
+        }
+
+        .wa-msg-icon.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent);
+        }
+
+        .wa-msg-icon.info {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--blue);
+        }
+
+        .wa-msg-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .wa-msg-time i {
+            width: 12px;
+            height: 12px;
+            color: var(--primary);
+        }
+
+        /* ========================================
+           CARD 4: FILTERS (Small)
+           ======================================== */
+        .bento-filters {
+            grid-column: span 4;
+        }
+
+        .filters-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .filter-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            display: flex;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 5px;
+        }
+
+        .toggle-option {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            color: var(--text-muted);
+        }
+
+        .toggle-option.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .toggle-option:not(.active):hover {
+            color: var(--text-primary);
+        }
+
+        /* Serves Counter */
+        .serves-input {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 0.5rem;
+        }
+
+        .serves-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .serves-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .serves-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .serves-unit {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-left: 0.25rem;
+        }
+
+        /* Food Tags */
+        .food-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .food-tag {
+            padding: 0.6rem 1rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            color: var(--text-muted);
+        }
+
+        .food-tag:hover {
+            border-color: var(--glass-border-light);
+            color: var(--text-primary);
+        }
+
+        .food-tag.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        /* ========================================
+           CARD 5: ACTIVITY FEED (Medium)
+           ======================================== */
+        .bento-activity {
+            grid-column: span 8;
+        }
+
+        .activity-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .activity-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            overflow: hidden;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-normal);
+            animation: activitySlide 0.5s ease;
+        }
+
+        @keyframes activitySlide {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .activity-item:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .activity-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .activity-icon i {
+            width: 22px;
+            height: 22px;
+        }
+
+        .activity-icon.donate {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--primary);
+        }
+
+        .activity-icon.volunteer {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent);
+        }
+
+        .activity-icon.delivery {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+        }
+
+        .activity-icon.ngo {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--blue);
+        }
+
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-message {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .activity-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .activity-location {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .activity-location i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .activity-time {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .activity-time i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .activity-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .activity-badge.new {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--primary);
+        }
+
+        .activity-badge.in-progress {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent);
+        }
+
+        .activity-badge.completed {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+        }
+
+        /* ========================================
+           RESPONSIVE DESIGN
+           ======================================== */
+        @media (max-width: 1200px) {
+            .bento-flow { grid-column: span 12; }
+            .bento-map { grid-column: span 12; }
+            .bento-whatsapp { grid-column: span 6; }
+            .bento-filters { grid-column: span 6; }
+            .bento-activity { grid-column: span 12; }
+        }
+
+        @media (max-width: 992px) {
+            nav {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero {
+                padding: 7rem 1.5rem 5rem;
+            }
+
+            .hero-headline {
+                font-size: 2.5rem;
+            }
+
+            .counter-card {
+                padding: 2rem 2.5rem;
+            }
+
+            .flow-main {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 2rem;
+            }
+
+            .flow-connection {
+                display: none;
+            }
+
+            .flow-particle {
+                display: none;
+            }
+
+            .flow-node {
+                width: calc(50% - 1rem);
+            }
+
+            .bento-whatsapp { grid-column: span 12; }
+            .bento-filters { grid-column: span 12; }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 6rem 1rem 4rem;
+            }
+
+            .hero-headline {
+                font-size: 2rem;
+            }
+
+            .hero-subheading {
+                font-size: 1rem;
+            }
+
+            .counter-card {
+                padding: 1.75rem 2rem;
+                width: 100%;
+            }
+
+            .counter-value {
+                font-size: 3rem;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .showcase-section {
+                padding: 3rem 1rem 6rem;
+            }
+
+            .bento-grid {
+                gap: 1rem;
+            }
+
+            .bento-card-content {
+                padding: 1.5rem;
+            }
+
+            .bento-flow .bento-card-content {
+                padding: 1.5rem;
+            }
+
+            .flow-node {
+                width: 100%;
+            }
+
+            .flow-node-icon {
+                width: 64px;
+                height: 64px;
+                border-radius: 18px;
+            }
+
+            .flow-node-icon i {
+                width: 28px;
+                height: 28px;
+            }
+
+            .progress-steps {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .progress-step {
+                width: calc(50% - 0.5rem);
+            }
+
+            .progress-line {
+                display: none;
+            }
+
+            .map-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+            }
+
+            .map-stat {
+                padding: 1rem;
+            }
+
+            .map-stat-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-headline {
+                font-size: 1.75rem;
+            }
+
+            .counter-value {
+                font-size: 2.5rem;
+            }
+
+            .showcase-title {
+                font-size: 1.75rem;
+            }
+
+            .flow-progress {
+                padding: 1rem;
+            }
+
+            .map-visual {
+                min-height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-effects">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+        <div class="bg-grid"></div>
+        <div class="bg-noise"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i data-lucide="heart-handshake"></i>
+                </div>
+                FoodBridge
+            </a>
+
+            <div class="nav-links">
+                <a href="#how-it-works">How It Works</a>
+                <a href="#for-ngos">For NGOs</a>
+                <a href="impact.html">Impact</a>
+                <a href="#">About</a>
+            </div>
+
+            <div class="nav-right">
+                <div class="open-source-badge">
+                    <i data-lucide="github"></i>
+                    <span>100% Open Source</span>
+                </div>
+                <a href="donate.html" class="nav-cta" id="navCta">Get Started</a>
+                <button id="logoutBtn" onclick="handleLogout()" style="display:none;padding:0.7rem 1.5rem;border-radius:50px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-weight:600;font-size:0.9rem;cursor:pointer;">Sign Out</button>
+            </div>
+
+            <button class="mobile-menu-btn">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <!-- Badge -->
+                <div class="hero-badge">
+                    <span class="live-dot"></span>
+                    <span>Real-time food rescue network active in 50+ cities</span>
+                </div>
+
+                <!-- Headline -->
+                <h1 class="hero-headline">
+                    <span class="line">No Meal Should Go to Waste.</span>
+                    <span class="line"><span class="highlight">No Person Should Go Hungry.</span></span>
+                </h1>
+
+                <!-- Subheading -->
+                <p class="hero-subheading">
+                    An open-source platform connecting donors, volunteers, NGOs, and families to deliver food efficiently, respectfully, and in real time.
+                </p>
+
+                <!-- Counter Section -->
+                <div class="counter-section">
+                    <div class="counter-card">
+                        <div class="counter-label">Impact So Far</div>
+                        <div class="counter-value">
+                            <span id="mainCounter">0</span><span class="plus">+</span>
+                        </div>
+                        <div class="counter-label-bottom">
+                            <i data-lucide="heart"></i>
+                            <span>People Fed Through Community Support</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Buttons -->
+                <div class="hero-cta">
+                    <a href="donate.html" class="btn btn-primary">
+                        <i data-lucide="heart"></i>
+                        Donate Food Now
+                    </a>
+                    <a href="request.html" class="btn btn-secondary">
+                        <i data-lucide="hand-helping"></i>
+                        Request Food
+                    </a>
+                    <a href="volunteer.html" class="btn btn-tertiary">
+                        <i data-lucide="bike"></i>
+                        Join as Volunteer
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator">
+            <div class="scroll-mouse">
+                <div class="scroll-wheel"></div>
+            </div>
+            <span>Explore How It Works</span>
+        </div>
+    </section>
+
+    <!-- Showcase Section - Bento Grid -->
+    <section class="showcase-section">
+        <div class="showcase-container">
+            <!-- Section Header -->
+            <div class="showcase-header">
+                <div class="showcase-label">The Platform</div>
+                <h2 class="showcase-title">How FoodBridge Works</h2>
+                <p class="showcase-subtitle">
+                    A seamless journey from food donation to delivery, powered by real-time technology and community volunteers.
+                </p>
+            </div>
+
+            <!-- Bento Grid -->
+            <div class="bento-grid">
+                <!-- CARD 1: System Flow Visualization (Full Width) -->
+                <div class="bento-card bento-flow">
+                    <div class="bento-card-content">
+                        <div class="bento-card-header">
+                            <div class="bento-card-title">
+                                <div class="icon green">
+                                    <i data-lucide="workflow"></i>
+                                </div>
+                                <span>Food Journey Visualization</span>
+                            </div>
+                            <div class="live-badge">
+                                <span class="dot"></span>
+                                Live System
+                            </div>
+                        </div>
+
+                        <div class="flow-visualization">
+                            <!-- Main Flow -->
+                            <div class="flow-main">
+                                <!-- Connection Line -->
+                                <div class="flow-connection">
+                                    <div class="flow-connection-progress"></div>
+                                </div>
+                                <!-- Animated Particle -->
+                                <div class="flow-particle"></div>
+
+                                <!-- Node 1: Donor -->
+                                <div class="flow-node">
+                                    <div class="flow-node-icon active" id="nodedonor">
+                                        <i data-lucide="package"></i>
+                                    </div>
+                                    <span class="flow-node-label">Donor</span>
+                                    <div class="flow-node-status">
+                                        <i data-lucide="check"></i>
+                                        Food Posted
+                                    </div>
+                                </div>
+
+                                <!-- Node 2: Volunteer -->
+                                <div class="flow-node">
+                                    <div class="flow-node-icon active-orange" id="nodevolunteer">
+                                        <i data-lucide="bike"></i>
+                                    </div>
+                                    <span class="flow-node-label">Volunteer</span>
+                                    <div class="flow-node-status">
+                                        <i data-lucide="check"></i>
+                                        Assigned
+                                    </div>
+                                </div>
+
+                                <!-- Node 3: NGO -->
+                                <div class="flow-node">
+                                    <div class="flow-node-icon active-purple" id="nodengo">
+                                        <i data-lucide="building-2"></i>
+                                    </div>
+                                    <span class="flow-node-label">NGO Partner</span>
+                                    <div class="flow-node-status">
+                                        <i data-lucide="shield-check"></i>
+                                        Verified
+                                    </div>
+                                </div>
+
+                                <!-- Node 4: Receiver -->
+                                <div class="flow-node">
+                                    <div class="flow-node-icon" id="nodereceiver">
+                                        <i data-lucide="home"></i>
+                                    </div>
+                                    <span class="flow-node-label">Receiver</span>
+                                    <div class="flow-node-status pending">
+                                        <i data-lucide="clock"></i>
+                                        Pending
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Progress Steps -->
+                            <div class="flow-progress">
+                                <div class="progress-header">
+                                    <div class="progress-title">
+                                        <i data-lucide="truck"></i>
+                                        Delivery Progress
+                                    </div>
+                                    <span class="progress-time" id="etaDisplay">Waiting for match...</span>
+                                </div>
+
+                                <div class="progress-steps">
+                                    <div class="progress-line">
+                                        <div class="progress-line-fill"></div>
+                                    </div>
+
+                                    <div class="progress-step">
+                                        <div class="step-indicator completed">
+                                            <i data-lucide="check"></i>
+                                        </div>
+                                        <span class="step-label active">Posted</span>
+                                    </div>
+
+                                    <div class="progress-step">
+                                        <div class="step-indicator completed">
+                                            <i data-lucide="check"></i>
+                                        </div>
+                                        <span class="step-label active">Accepted</span>
+                                    </div>
+
+                                    <div class="progress-step">
+                                        <div class="step-indicator current"></div>
+                                        <span class="step-label active">Picked Up</span>
+                                    </div>
+
+                                    <div class="progress-step">
+                                        <div class="step-indicator"></div>
+                                        <span class="step-label">Delivered</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 2: Smart Map -->
+                <div class="bento-card bento-map">
+                    <div class="bento-card-content">
+                        <div class="bento-card-header">
+                            <div class="bento-card-title">
+                                <div class="icon green">
+                                    <i data-lucide="map-pin"></i>
+                                </div>
+                                <span>Smart Matching</span>
+                            </div>
+                            <div class="live-badge">
+                                <span class="dot"></span>
+                                Tracking
+                            </div>
+                        </div>
+
+                        <div class="map-container">
+                            <div class="map-visual">
+                                <div id="indexMap" style="width:100%;height:100%;min-height:200px;"></div>
+                            </div>
+
+                            <!-- Map Stats -->
+                            <div class="map-stats">
+                                <div class="map-stat">
+                                    <div class="map-stat-value green" id="statDistance">—</div>
+                                    <div class="map-stat-label">Distance</div>
+                                </div>
+                                <div class="map-stat">
+                                    <div class="map-stat-value orange" id="statETA">—</div>
+                                    <div class="map-stat-label">ETA</div>
+                                </div>
+                                <div class="map-stat">
+                                    <div class="map-stat-value red" id="statExpiry">—</div>
+                                    <div class="map-stat-label">Expiry</div>
+                                </div>
+                            </div>
+
+                            <!-- Smart Note -->
+                            <div class="map-note">
+                                <i data-lucide="zap"></i>
+                                <span>Only matched if delivery is possible before food expiry</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 3: WhatsApp Bot -->
+                <div class="bento-card bento-whatsapp">
+                    <div class="bento-card-content">
+                        <div class="bento-card-header">
+                            <div class="bento-card-title">
+                                <div class="icon green">
+                                    <i data-lucide="message-circle"></i>
+                                </div>
+                                <span>WhatsApp Bot</span>
+                            </div>
+                        </div>
+
+                        <div class="whatsapp-container">
+                            <div class="whatsapp-header">
+                                <div class="whatsapp-avatar">
+                                    <i data-lucide="bot"></i>
+                                </div>
+                                <div class="whatsapp-info">
+                                    <div class="whatsapp-name">FoodBridge Bot</div>
+                                    <div class="whatsapp-status">
+                                        <span class="dot"></span>
+                                        Online • Always Available
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="whatsapp-messages" id="waMessages">
+                                <!-- Messages loaded from backend -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 4: Quick Filters -->
+                <div class="bento-card bento-filters">
+                    <div class="bento-card-content">
+                        <div class="bento-card-header">
+                            <div class="bento-card-title">
+                                <div class="icon orange">
+                                    <i data-lucide="sliders-horizontal"></i>
+                                </div>
+                                <span>Quick Filters</span>
+                            </div>
+                        </div>
+
+                        <div class="filters-container">
+                            <!-- Food Type Toggle -->
+                            <div class="filter-group">
+                                <div class="filter-label">Food Type</div>
+                                <div class="toggle-switch">
+                                    <div class="toggle-option active">🥬 Veg</div>
+                                    <div class="toggle-option">🍖 Non-Veg</div>
+                                </div>
+                            </div>
+
+                            <!-- Serves Counter -->
+                            <div class="filter-group">
+                                <div class="filter-label">Serves</div>
+                                <div class="serves-input">
+                                    <button class="serves-btn" id="servesDecrease">−</button>
+                                    <div>
+                                        <span class="serves-value" id="servesValue">5</span>
+                                        <span class="serves-unit">people</span>
+                                    </div>
+                                    <button class="serves-btn" id="servesIncrease">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Category Tags -->
+                            <div class="filter-group">
+                                <div class="filter-label">Category</div>
+                                <div class="food-tags">
+                                    <span class="food-tag active">🍳 Cooked</span>
+                                    <span class="food-tag">🥕 Raw</span>
+                                    <span class="food-tag">📦 Packaged</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 5: Live Activity Feed -->
+                <div class="bento-card bento-activity">
+                    <div class="bento-card-content">
+                        <div class="bento-card-header">
+                            <div class="bento-card-title">
+                                <div class="icon orange">
+                                    <i data-lucide="activity"></i>
+                                </div>
+                                <span>Live Activity Feed</span>
+                            </div>
+                            <div class="live-badge">
+                                <span class="dot"></span>
+                                Real-time
+                            </div>
+                        </div>
+
+                        <div class="activity-container">
+                            <div class="activity-list" id="activityFeed">
+                                <!-- Activities loaded from backend -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FoodBridge Backend Integration -->
+    <script src="api.js"></script>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // ========================================
+        // BACKEND CONNECTION — Button Handlers
+        // Wait for api.js to be ready
+        // ========================================
+        function updateAuthUI() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            const cta = document.querySelector('.nav-cta');
+            const loggedIn = window.FoodBridge?.Auth?.isLoggedIn ? window.FoodBridge.Auth.isLoggedIn() : !!localStorage.getItem('fb_token');
+            const user = window.FoodBridge?.Auth?.getUser ? window.FoodBridge.Auth.getUser() : JSON.parse(localStorage.getItem('fb_user') || '{}');
+
+            if (logoutBtn) logoutBtn.style.display = loggedIn ? 'inline-flex' : 'none';
+            if (cta) cta.textContent = loggedIn ? ((user?.role?.charAt(0).toUpperCase() + (user?.role || '').slice(1)) + ' Dashboard') : 'Get Started';
+        }
+
+        function handleLogout() {
+            if (window.FoodBridge && window.FoodBridge.Auth && window.FoodBridge.Auth.logout) {
+                window.FoodBridge.Auth.logout();
+            } else {
+                localStorage.removeItem('fb_token');
+                localStorage.removeItem('fb_refresh');
+                localStorage.removeItem('fb_user');
+            }
+            updateAuthUI();
+            if (window.FoodBridge && window.FoodBridge.showToast) {
+                window.FoodBridge.showToast('You have logged out successfully.', 'success');
+            }
+            window.location.href = 'index.html';
+        }
+
+        // Make sure this is available for inline onclick attribute
+        window.handleLogout = handleLogout;
+
+        window.addEventListener('load', function() {
+            const handleCTA = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const text = this.textContent.trim().toLowerCase();
+                const loggedIn = window.FoodBridge?.Auth?.isLoggedIn ? window.FoodBridge.Auth.isLoggedIn() : !!localStorage.getItem('fb_token');
+
+                if (!loggedIn) {
+                    if (window.FoodBridge && window.FoodBridge.showAuthModal) {
+                        window.FoodBridge.showAuthModal(this.textContent.trim());
+                    } else {
+                        alert('Please log in first to continue.');
+                        window.location.href = 'index.html';
+                    }
+                    return;
+                }
+
+                if (text.includes('donat')) {
+                    if (window.FoodBridge && window.FoodBridge.showDonateModal) {
+                        window.FoodBridge.showDonateModal();
+                    } else {
+                        window.location.href = 'donate.html';
+                    }
+                } else if (text.includes('request')) {
+                    if (window.FoodBridge && window.FoodBridge.showRequestModal) {
+                        window.FoodBridge.showRequestModal();
+                    }
+                } else if (text.includes('volunteer')) {
+                    if (window.FoodBridge && window.FoodBridge.showToast) {
+                        window.FoodBridge.showToast('You are registered as a volunteer! Keep your availability ON.', 'info');
+                    }
+                } else {
+                    if (window.FoodBridge && window.FoodBridge.showToast) {
+                        const user = JSON.parse(localStorage.getItem('fb_user') || '{}');
+                        window.FoodBridge.showToast('You are logged in as ' + (user.role || 'user') + ' 👤', 'info');
+                    }
+                }
+            };
+
+            document.querySelectorAll('.btn-primary, .btn-secondary, .btn-tertiary, .nav-cta').forEach(function(btn) {
+                btn.removeEventListener('click', handleCTA);
+                btn.addEventListener('click', handleCTA);
+            });
+
+            updateAuthUI();
+
+            window.addEventListener('fb:login', updateAuthUI);
+            window.addEventListener('fb:logout', updateAuthUI);
+        });
+
+        // ========================================
+        // ANIMATED COUNTER
+        // ========================================
+        function animateCounter(elementId, target, duration = 2500) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const start = 0;
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function for smooth animation
+                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                const current = Math.floor(start + (target - start) * easeOutQuart);
+                
+                element.textContent = current.toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        // Start counter when visible
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter('mainCounter', 12450, 2500);
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const counterElement = document.querySelector('.counter-card');
+        if (counterElement) {
+            counterObserver.observe(counterElement);
+        }
+
+        // Activity feed is powered by real backend data via api.js
+
+        // ========================================
+        // TOGGLE FUNCTIONALITY
+        // ========================================
+        document.querySelectorAll('.toggle-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const container = this.parentElement;
+                container.querySelectorAll('.toggle-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // ========================================
+        // FOOD TAGS TOGGLE
+        // ========================================
+        document.querySelectorAll('.food-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        // ========================================
+        // SERVES COUNTER
+        // ========================================
+        let servesCount = 5;
+        const servesValue = document.getElementById('servesValue');
+        const servesDecrease = document.getElementById('servesDecrease');
+        const servesIncrease = document.getElementById('servesIncrease');
+
+        if (servesDecrease && servesIncrease && servesValue) {
+            servesDecrease.addEventListener('click', () => {
+                if (servesCount > 1) {
+                    servesCount--;
+                    servesValue.textContent = servesCount;
+                }
+            });
+
+            servesIncrease.addEventListener('click', () => {
+                if (servesCount < 500) {
+                    servesCount++;
+                    servesValue.textContent = servesCount;
+                }
+            });
+        }
+
+        // ========================================
+        // SCROLL INDICATOR CLICK
+        // ========================================
+        const scrollIndicator = document.querySelector('.scroll-indicator');
+        if (scrollIndicator) {
+            scrollIndicator.addEventListener('click', () => {
+                document.querySelector('.showcase-section').scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+            });
+        }
+
+        // ========================================
+        // REVEAL ANIMATIONS ON SCROLL
+        // ========================================
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        document.querySelectorAll('.bento-card').forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(40px)';
+            card.style.transition = `all 0.6s ease ${index * 0.1}s`;
+            revealObserver.observe(card);
+        });
+
+        // ========================================
+        // PARALLAX EFFECT ON BACKGROUND
+        // ========================================
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    const scrolled = window.pageYOffset;
+                    const orbs = document.querySelectorAll('.bg-orb');
+                    
+                    orbs.forEach((orb, index) => {
+                        const speed = 0.05 + (index * 0.02);
+                        orb.style.transform = `translateY(${scrolled * speed}px)`;
+                    });
+                    
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // WhatsApp messages are powered by real Twilio webhook via backend
+
+        // ========================================
+        // INDEX MAP — shows active donation zones
+        // ========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            function initIndexMap(lat, lng) {
+                const indexMap = L.map('indexMap', { zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false })
+                    .setView([lat, lng], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(indexMap);
+                const greenIcon = L.divIcon({ className: '', html: '<div style="width:14px;height:14px;background:#10b981;border-radius:50%;border:2px solid white;box-shadow:0 0 8px #10b981;"></div>' });
+                const orangeIcon = L.divIcon({ className: '', html: '<div style="width:14px;height:14px;background:#f59e0b;border-radius:50%;border:2px solid white;box-shadow:0 0 8px #f59e0b;"></div>' });
+                // User location marker
+                L.marker([lat, lng], {icon: greenIcon}).addTo(indexMap).bindPopup('You are here');
+                // Nearby simulated points
+                const offsets = [[0.01,0.02],[-0.015,0.01],[0.008,-0.02],[-0.02,-0.015]];
+                offsets.forEach((o,i) => {
+                    const icon = i % 2 === 0 ? greenIcon : orangeIcon;
+                    const label = i % 2 === 0 ? 'Donor nearby' : 'Volunteer nearby';
+                    L.marker([lat+o[0], lng+o[1]], {icon}).addTo(indexMap).bindPopup(label);
+                });
+            }
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => initIndexMap(pos.coords.latitude, pos.coords.longitude),
+                    () => initIndexMap(20.5937, 78.9629)
+                );
+            } else {
+                initIndexMap(20.5937, 78.9629);
+            }
+        });
+    </script>
+</body>
+</html>
